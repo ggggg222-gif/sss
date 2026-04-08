@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AviaVision Pro - Air Cargo Education Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@400;500;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-color: #003366; --secondary-color: #0066cc; --accent-color: #ff6b35;
+            --light-bg: #f5f7fa; --dark-bg: #1a1a2e; --text-dark: #2c3e50;
+            --success-color: #27ae60; --warning-color: #f39c12; --danger-color: #e74c3c;
+        }
+        body { font-family: 'Open Sans', sans-serif; overflow-x: hidden; background: var(--light-bg); }
+        
+        /* ======================================== */
+        /* LANGUAGE PANEL - DROPDOWN STYLE */
+        /* ======================================== */
+        .lang-panel { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10001; 
+        }
+        .lang-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .lang-btn-main {
+            padding: 12px 24px;
+            border: none;
+            background: linear-gradient(135deg, var(--secondary-color), #2575c4);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,102,204,0.4);
+        }
+        .lang-btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,102,204,0.5);
+        }
+        .lang-btn-main i {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        .lang-dropdown.active .lang-btn-main i {
+            transform: rotate(180deg);
+        }
+        .lang-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-width: 140px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .lang-dropdown.active .lang-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .lang-option {
+            padding: 14px 20px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .lang-option:hover {
+            background: #f0f7ff;
+            color: var(--secondary-color);
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #e8f4ff, #d4ebff);
+            color: var(--secondary-color);
+        }
+        .lang-option.active::before {
+            content: '✓';
+            font-weight: bold;
+        }
+        .lang-flag {
+            font-size: 16px;
+        }
+        
+        /* ======================================== */
+        /* OPENING ANIMATION */
+        /* ======================================== */
+        #opening-animation { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, #1a5276 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000; 
+            transition: opacity 0.8s ease;
+        }
+        .cockpit-container {
+            text-align: center;
+            position: relative;
+        }
+        .logo-text { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 5.5rem; 
+            font-weight: 800; 
+            color: white;
+            letter-spacing: 12px;
+            text-shadow: 0 0 40px rgba(255,255,255,0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+        .logo-subtitle {
+            font-size: 1.4rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 25px;
+            letter-spacing: 3px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.5s forwards;
+        }
+        .plane-icon {
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 20px;
+            animation: planeFly 2s ease-in-out infinite;
+        }
+        .loading-bar {
+            width: 280px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin: 40px auto 0;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 1s forwards;
+        }
+        .loading-progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #fff, #00d4ff);
+            animation: loadingProgress 2s ease-out 1.2s forwards;
+        }
+        @keyframes logoFloat { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-10px); } 
+        }
+        @keyframes planeFly {
+            0%, 100% { transform: translateX(-5px) rotate(-5deg); }
+            50% { transform: translateX(5px) rotate(5deg); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes loadingProgress {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+        
+        /* ======================================== */
+        /* NAVIGATION */
+        /* ======================================== */
+        .navbar { 
+            background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+        .nav-container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 15px 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .nav-logo { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--primary-color); 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        .nav-menu { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            list-style: none; 
+        }
+        .nav-menu a { 
+            text-decoration: none; 
+            color: var(--text-dark); 
+            font-weight: 600; 
+            font-size: 0.8rem; 
+            transition: all 0.3s;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-menu a:hover { 
+            color: var(--secondary-color);
+            background: rgba(0,102,204,0.08);
+        }
+        .nav-menu a.highlight { color: var(--accent-color); }
+        
+        /* ======================================== */
+        /* HERO */
+        /* ======================================== */
+        .hero-section { 
+            position: relative; 
+            height: 600px; 
+            overflow: hidden;
+        }
+        .carousel-slide { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(135deg, rgba(0,51,102,0.9) 0%, rgba(0,102,204,0.7) 100%), 
+                url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920'); 
+            background-size: cover; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .carousel-content { 
+            text-align: center; 
+            color: white; 
+            max-width: 900px; 
+            padding: 0 30px; 
+        }
+        .carousel-content h1 { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 3rem; 
+            font-weight: 700; 
+            margin-bottom: 20px; 
+        }
+        .carousel-btn { 
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 40px; 
+            background: var(--accent-color); 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .carousel-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px rgba(255,107,53,0.4); 
+        }
+        
+        /* ======================================== */
+        /* SECTIONS */
+        /* ======================================== */
+        section { padding: 60px 30px; max-width: 1400px; margin: 0 auto; }
+        .section-title { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 2.2rem; 
+            color: var(--primary-color); 
+            margin-bottom: 15px; 
+            text-align: center; 
+        }
+        .section-subtitle { 
+            text-align: center; 
+            color: #666; 
+            font-size: 1rem; 
+            margin-bottom: 40px; 
+        }
+        
+        /* ======================================== */
+        /* CARGO TYPES */
+        /* ======================================== */
+        .types-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
+        }
+        .type-card { 
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 15px; 
+            text-align: center; 
+            transition: all 0.3s; 
+            border: 2px solid transparent; 
+            cursor: pointer; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
+        }
+        .type-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12); 
+            border-color: var(--secondary-color); 
+        }
+        .type-icon { 
+            font-size: 2.5rem; 
+            color: var(--secondary-color); 
+            margin-bottom: 15px; 
+        }
+        
+        /* ======================================== */
+        /* DGR */
+        /* ======================================== */
+        .dgr-section { 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
+            padding: 60px 20px; 
+        }
+        .dgr-container { max-width: 1200px; margin: 0 auto; }
+        .dgr-header { 
+            background: linear-gradient(135deg, #003366 0%, #0066cc 100%); 
+            border-radius: 20px; 
+            padding: 30px; 
+            margin-bottom: 30px; 
+            color: white; 
+        }
+        .dgr-table-wrapper { 
+            background: white; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+        }
+        .dgr-classes-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 14px; 
+        }
+        .dgr-classes-table th { 
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6a 100%); 
+            color: white; 
+            padding: 15px; 
+            text-align: left; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            font-size: 12px; 
+        }
+        .dgr-classes-table td { 
+            padding: 15px; 
+            border-bottom: 1px solid #e5e7eb; 
+        }
+        .dgr-class-badge { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 8px 16px; 
+            border-radius: 25px; 
+            font-weight: 700; 
+            font-size: 13px; 
+        }
+        .dgr-class-1 { background: #fee2e2; color: #991b1b; }
+        .dgr-class-2 { background: #dbeafe; color: #1e40af; }
+        .dgr-class-3 { background: #fef3c7; color: #92400e; }
+        .dgr-class-4 { background: #d1fae5; color: #065f46; }
+        .dgr-class-5 { background: #fce7f3; color: #9d174d; }
+        .dgr-class-6 { background: #f3e8ff; color: #6b21a8; }
+        .dgr-class-7 { background: #fef9c3; color: #854d0e; }
+        .dgr-class-8 { background: #ffedd5; color: #9a3412; }
+        .dgr-class-9 { background: #f3f4f6; color: #374151; }
+        
+        /* ======================================== */
+        /* CHARTS */
+        /* ======================================== */
+        .loading-charts-section { 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
+            padding: 60px 20px; 
+            color: white; 
+        }
+        .charts-tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 30px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+        }
+        .chart-tab { 
+            padding: 12px 25px; 
+            background: rgba(255,255,255,0.1); 
+            border: 2px solid transparent; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s; 
+            color: white; 
+        }
+        .chart-tab.active { 
+            background: var(--secondary-color); 
+            border-color: var(--secondary-color); 
+        }
+        .chart-content { 
+            display: none; 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 20px; 
+            padding: 30px; 
+        }
+        .chart-content.active { display: block; }
+        .chart-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 12px; 
+        }
+        .chart-table th, .chart-table td { 
+            padding: 8px; 
+            text-align: center; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .chart-table th { 
+            background: rgba(0,102,204,0.3); 
+            font-weight: 600; 
+        }
+        
+        /* ======================================== */
+        /* SIMULATION */
+        /* ======================================== */
+        .zones-legend { 
+            display: flex; 
+            justify-content: center; 
+            gap: 30px; 
+            margin-bottom: 25px; 
+            flex-wrap: wrap; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 15px; 
+        }
+        .legend-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 13px; 
+            font-weight: 600; 
+        }
+        .legend-color { 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 4px; 
+            border: 2px solid rgba(0,0,0,0.2); 
+        }
+        .aircraft-photo-container { 
+            position: relative; 
+            max-width: 1100px; 
+            margin: 0 auto 30px; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .aircraft-photo { 
+            width: 100%; 
+            max-height: 500px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+        .loading-zones-overlay { 
+            position: absolute; 
+            bottom: 15%; 
+            left: 5%; 
+            right: 5%; 
+            height: 25%; 
+            display: flex; 
+            align-items: flex-end; 
+            gap: 2px; 
+        }
+        .loading-zone { 
+            flex: 1; 
+            height: 100%; 
+            border-radius: 4px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-end; 
+            padding-bottom: 5px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .zone-fwd { 
+            background: linear-gradient(180deg, rgba(174, 214, 241, 0.85) 0%, rgba(41, 128, 185, 0.9) 100%); 
+        }
+        .zone-main { 
+            background: linear-gradient(180deg, rgba(249, 228, 176, 0.85) 0%, rgba(214, 137, 16, 0.9) 100%); 
+        }
+        .zone-aft { 
+            background: linear-gradient(180deg, rgba(171, 235, 198, 0.85) 0%, rgba(39, 174, 96, 0.9) 100%); 
+        }
+        .loading-zone.error { 
+            background: linear-gradient(180deg, rgba(255, 100, 100, 0.9) 0%, rgba(200, 0, 0, 0.95) 100%) !important;
+            animation: redPulse 1s ease-in-out infinite;
+        }
+        .loading-zone.ok { 
+            background: linear-gradient(180deg, rgba(100, 220, 100, 0.9) 0%, rgba(39, 174, 96, 0.95) 100%) !important;
+            animation: greenPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes redPulse { 
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); } 
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 1); } 
+        }
+        @keyframes greenPulse { 
+            0%, 100% { box-shadow: 0 0 15px rgba(39, 174, 96, 0.6); } 
+            50% { box-shadow: 0 0 30px rgba(39, 174, 96, 0.9); } 
+        }
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--secondary-color);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        .upload-area:hover {
+            border-color: var(--accent-color);
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%);
+        }
+        .upload-area.has-image {
+            border-style: solid;
+            border-color: var(--success-color);
+            background: #e8f5e9;
+            padding: 15px;
+        }
+        .upload-icon { font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 10px; }
+        .upload-text { font-size: 1rem; color: var(--text-dark); font-weight: 600; }
+        .upload-input { display: none; }
+        .compartment-section { 
+            background: white; 
+            border-radius: 15px; 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+        }
+        .compartment-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            padding-bottom: 15px; 
+            border-bottom: 2px solid #f0f0f0; 
+        }
+        .compartment-title { 
+            color: var(--primary-color); 
+            font-weight: 700; 
+            font-size: 16px; 
+        }
+        .compartment-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; 
+        }
+        .compartment-input label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+            color: var(--primary-color); 
+            background: linear-gradient(135deg, #e8f0f8, #d4e4f7); 
+            padding: 6px; 
+            border-radius: 8px; 
+            text-align: center; 
+        }
+        .compartment-input input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #d1d8e0; 
+            border-radius: 10px; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 15px; 
+        }
+        .results-panel { 
+            background: white; 
+            border-radius: 15px; 
+            padding: 30px; 
+            margin-top: 25px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+        }
+        .results-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+        }
+        .result-box { 
+            text-align: center; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            border-radius: 12px; 
+            border: 2px solid transparent; 
+        }
+        .result-box.ok { 
+            border-color: var(--success-color); 
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9); 
+        }
+        .result-box.error { 
+            border-color: var(--danger-color); 
+            background: linear-gradient(135deg, #ffebee, #ffcdd2); 
+        }
+        .result-label { 
+            font-size: 11px; 
+            color: #666; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            font-weight: 600; 
+        }
+        .result-value { 
+            font-size: 22px; 
+            font-weight: 700; 
+            color: var(--primary-color); 
+        }
+        .error-log { 
+            background: linear-gradient(135deg, #ffebee, #ffcdd2); 
+            border: 2px solid #ef5350; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            display: none; 
+        }
+        .error-log.active { display: block; }
+        
+        .sim-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #2575c4);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #1e7e34);
+            color: white;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* ======================================== */
+        /* CALCULATOR */
+        /* ======================================== */
+        .calculator-section { 
+            background: linear-gradient(135deg, #f5f4f0 0%, #e8e8e5 100%); 
+            padding: 60px 20px; 
+        }
+        .calc-card { 
+            background: #fff; 
+            border: 1px solid #e5e5e0; 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            margin-bottom: 16px; 
+        }
+        .calc-grid2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+        .calc-grid4 { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px; 
+        }
+        .calc-input, .calc-select { 
+            width: 100%; 
+            padding: 12px; 
+            font-size: 14px; 
+            border: 1px solid #ddd; 
+            border-radius: 10px; 
+            background: #fff; 
+        }
+        .calc-btn-main { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #378ADD, #2575c4); 
+            color: #fff; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 17px; 
+            font-weight: 600; 
+            cursor: pointer; 
+        }
+        .calc-results { 
+            margin-top: 2rem; 
+            display: none; 
+        }
+        .calc-results.active { display: block; }
+        .tc { 
+            background: #fff; 
+            border: 1px solid #e5e5e0; 
+            border-radius: 14px; 
+            padding: 1.3rem; 
+            position: relative; 
+        }
+        .tc.best-cost { border: 2px solid #1D9E75; } 
+        .tc.best-time { border: 2px solid #378ADD; }
+        .badge { 
+            font-size: 11px; 
+            padding: 3px 9px; 
+            border-radius: 20px; 
+            font-weight: 700; 
+        }
+        .b-cost { background: #1D9E75; color: #fff; }
+        .b-time { background: #378ADD; color: #fff; }
+        
+        /* ======================================== */
+        /* AWB */
+        /* ======================================== */
+        .awb-section { 
+            background: linear-gradient(135deg, #e8eef5 0%, #d4dde8 100%); 
+            padding: 40px 20px; 
+        }
+        .awb-main-container { max-width: 1200px; margin: 0 auto; }
+        .awb-input-panel { 
+            background: #fff; 
+            border-radius: 16px; 
+            padding: 30px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+        }
+        .awb-input-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 25px; 
+        }
+        .awb-input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+        }
+        .awb-input-group label { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: #555; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        .awb-input-group input, .awb-input-group select, .awb-input-group textarea { 
+            padding: 12px 15px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 10px; 
+            font-size: 14px; 
+            transition: all 0.3s; 
+            font-family: 'Open Sans', sans-serif;
+        }
+        .awb-input-group input:focus, .awb-input-group select:focus, .awb-input-group textarea:focus { 
+            border-color: var(--secondary-color); 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        .awb-input-group textarea { 
+            min-height: 80px; 
+            resize: vertical; 
+        }
+        .awb-cargo-inputs { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        .awb-calc-btn { 
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
+            color: white; 
+            border: none; 
+            padding: 18px 50px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            margin: 0 auto;
+        }
+        .awb-calc-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 30px rgba(0,102,204,0.4); 
+        }
+        .awb-form-wrapper { 
+            background: #fff; 
+            padding: 20px; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.2); 
+            margin-bottom: 30px; 
+        }
+        .awb-official { 
+            width: 100%; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            font-family: 'Arial', sans-serif; 
+            font-size: 9pt; 
+            border: 2px solid #000; 
+            border-collapse: collapse;
+        }
+        .awb-official td, .awb-official th { 
+            border: 1px solid #000; 
+            padding: 4px 6px; 
+            vertical-align: top;
+        }
+        .awb-official input { 
+            width: 100%; 
+            border: none; 
+            font-family: 'Courier Prime', monospace; 
+            font-size: 9pt; 
+            background: transparent; 
+            outline: none;
+        }
+        .awb-official textarea { 
+            width: 100%; 
+            border: none; 
+            font-family: 'Courier Prime', monospace; 
+            font-size: 9pt; 
+            background: transparent; 
+            outline: none; 
+            resize: none;
+            min-height: 60px;
+        }
+        .awb-label { font-size: 7pt; text-transform: uppercase; color: #333; font-weight: normal; }
+        .airline-codes-panel { 
+            background: #fff; 
+            border-radius: 16px; 
+            padding: 25px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
+        }
+        .airline-codes-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 12px; 
+        }
+        .airline-code-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px; 
+            background: #f8f9fa; 
+            border-radius: 10px; 
+            border: 1px solid #e0e0e0; 
+            transition: all 0.3s; 
+        }
+        .airline-code-item:hover { 
+            background: #e8f4fd; 
+            border-color: var(--secondary-color); 
+        }
+        .airline-code-flag { font-size: 24px; }
+        .airline-code-info { flex: 1; }
+        .airline-code-name { font-weight: 600; font-size: 13px; color: #333; }
+        .airline-code-number { font-size: 11px; color: #666; font-family: 'Courier Prime', monospace; }
+        .awb-tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 25px; 
+            justify-content: center; 
+        }
+        .awb-tab { 
+            padding: 12px 30px; 
+            background: #fff; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s; 
+        }
+        .awb-tab.active { 
+            background: var(--primary-color); 
+            color: white; 
+            border-color: var(--primary-color); 
+        }
+        .awb-tab-content { display: none; }
+        .awb-tab-content.active { display: block; }
+        .awb-action-btns { 
+            display: flex; 
+            gap: 15px; 
+            justify-content: center; 
+            margin-top: 25px; 
+            flex-wrap: wrap; 
+        }
+        .awb-action-btn { 
+            padding: 14px 35px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            border: 2px solid;
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        .awb-action-btn.primary { 
+            background: var(--primary-color); 
+            color: white; 
+            border-color: var(--primary-color); 
+        }
+        .awb-action-btn.primary:hover { background: var(--secondary-color); }
+        .awb-action-btn.secondary { 
+            background: white; 
+            color: var(--primary-color); 
+            border-color: var(--primary-color); 
+        }
+        .awb-action-btn.secondary:hover { background: #f0f0f0; }
+        .awb-action-btn.success { 
+            background: var(--success-color); 
+            color: white; 
+            border-color: var(--success-color); 
+        }
+        .awb-action-btn.success:hover { background: #219a52; }
+        
+        /* ======================================== */
+        /* FOOTER */
+        /* ======================================== */
+        footer { 
+            background: var(--dark-bg); 
+            color: white; 
+            padding: 40px; 
+            text-align: center; 
+        }
+        
+        /* ======================================== */
+        /* TOAST */
+        /* ======================================== */
+        .toast { 
+            position: fixed; 
+            bottom: 100px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(100px); 
+            background: var(--success-color); 
+            color: white; 
+            padding: 15px 30px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            z-index: 10005; 
+            opacity: 0; 
+            transition: all 0.3s ease;
+        }
+        .toast.error { background: var(--danger-color); }
+        .toast.show { 
+            transform: translateX(-50%) translateY(0); 
+            opacity: 1; 
+        }
+        
+        /* ======================================== */
+        /* PRINT */
+        /* ======================================== */
+        @media print {
+            body * { visibility: hidden; }
+            .awb-form-wrapper, .awb-form-wrapper * { visibility: visible; }
+            .awb-form-wrapper { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                padding: 0; 
+                box-shadow: none; 
+            }
+            .no-print, .awb-tabs, .awb-action-btns { display: none !important; }
+            .navbar, .lang-panel { display: none !important; }
+        }
+        
+        /* ======================================== */
+        /* RESPONSIVE */
+        /* ======================================== */
+        @media (max-width: 768px) { 
+            .nav-menu { display: none; }
+            .calc-grid2, .calc-grid4, .compartment-grid { grid-template-columns: 1fr 1fr; }
+            .results-grid { grid-template-columns: repeat(2, 1fr); }
+            .awb-input-grid { grid-template-columns: 1fr; }
+            .logo-text { font-size: 3rem; letter-spacing: 6px; }
+            .carousel-content h1 { font-size: 2rem; }
+            .lang-panel { top: 10px; right: 10px; }
+            .lang-btn-main { padding: 10px 18px; font-size: 12px; }
+            .lang-menu { right: 0; min-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- LANGUAGE PANEL - DROPDOWN -->
+    <div class="lang-panel">
+        <div class="lang-dropdown" id="langDropdown">
+            <button class="lang-btn-main" onclick="toggleLangDropdown()">
+                <span id="currentLangText">AZE</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="lang-menu">
+                <button class="lang-option active" onclick="changeLanguage('az')" data-lang="az">
+                    <span class="lang-flag">🇦🇿</span> AZE
+                </button>
+                <button class="lang-option" onclick="changeLanguage('ru')" data-lang="ru">
+                    <span class="lang-flag">🇷🇺</span> RUS
+                </button>
+                <button class="lang-option" onclick="changeLanguage('en')" data-lang="en">
+                    <span class="lang-flag">🇬🇧</span> ENG
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPENING ANIMATION -->
+    <div id="opening-animation">
+        <div class="cockpit-container">
+            <div class="plane-icon"><i class="fas fa-plane"></i></div>
+            <div class="logo-text">AVIAVISION</div>
+            <div class="logo-subtitle" data-i18n="subtitle">Hava yük daşımaları təhsil platforması</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" style="display:none;">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="#" class="nav-logo"><i class="fas fa-plane-departure"></i> AviaVision</a>
+                <ul class="nav-menu">
+                    <li><a href="#hero" data-i18n="nav_home">Əsas</a></li>
+                    <li><a href="#cargo-types" data-i18n="nav_types">Yük növləri</a></li>
+                    <li><a href="#dgr" data-i18n="nav_dgr">DGR</a></li>
+                    <li><a href="#loading-charts" data-i18n="nav_charts">Cədvəllər</a></li>
+                    <li><a href="#simulation" data-i18n="nav_sim">Simulyator</a></li>
+                    <li><a href="#awb-section" class="highlight"><i class="fas fa-file-invoice"></i> AWB</a></li>
+                    <li><a href="#calculator" data-i18n="nav_calc">Kalkulyator</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero">
+            <div class="carousel-slide">
+                <div class="carousel-content">
+                    <h1 data-i18n="hero_title">Hava yük daşımaları üzrə peşəkar təhsil</h1>
+                    <p style="font-size:1.2rem;margin-bottom:30px;opacity:0.9;" data-i18n="hero_subtitle">Nəzəriyyədən praktikaya qədər yük aviadası daşımalarının bütün aspektlərini öyrənin</p>
+                    <a href="#cargo-types" class="carousel-btn" data-i18n="hero_cta">Təhsilə başla</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cargo Types Section -->
+        <section id="cargo-types">
+            <h2 class="section-title" data-i18n="types_title">Hava yük növləri</h2>
+            <p class="section-subtitle" data-i18n="types_subtitle">Ətraflı məlumat üçün kartı vurun</p>
+            <div class="types-grid">
+                <div class="type-card" onclick="showCargoInfo('general')">
+                    <div class="type-icon"><i class="fas fa-box"></i></div>
+                    <h3 data-i18n="cargo_general">Adi yük</h3>
+                    <p data-i18n="cargo_general_desc">Standart yüklər</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('perishable')">
+                    <div class="type-icon"><i class="fas fa-snowflake"></i></div>
+                    <h3 data-i18n="cargo_perishable">Tez xarab olan</h3>
+                    <p data-i18n="cargo_perishable_desc">Temperatur rejimi</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('dangerous')">
+                    <div class="type-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h3 data-i18n="cargo_dangerous">Təhlükəli yük</h3>
+                    <p data-i18n="cargo_dangerous_desc">IATA DGR qaydaları</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('live')">
+                    <div class="type-icon"><i class="fas fa-paw"></i></div>
+                    <h3 data-i18n="cargo_live">Canlı heyvanlar</h3>
+                    <p data-i18n="cargo_live_desc">Ventilyasiya vacibdir</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('valuable')">
+                    <div class="type-icon"><i class="fas fa-gem"></i></div>
+                    <h3 data-i18n="cargo_valuable">Dəyərli yük</h3>
+                    <p data-i18n="cargo_valuable_desc">Xüsusi təhlükəsizlik</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('pharma')">
+                    <div class="type-icon"><i class="fas fa-pills"></i></div>
+                    <h3 data-i18n="cargo_pharma">Farmasevtika</h3>
+                    <p data-i18n="cargo_pharma_desc">Soyuq zəncir</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('oversized')">
+                    <div class="type-icon"><i class="fas fa-ruler-combined"></i></div>
+                    <h3 data-i18n="cargo_oversized">Ölçüsü böyük</h3>
+                    <p data-i18n="cargo_oversized_desc">Yer sifarişi</p>
+                </div>
+                <div class="type-card" onclick="showCargoInfo('fragile')">
+                    <div class="type-icon"><i class="fas fa-wine-glass"></i></div>
+                    <h3 data-i18n="cargo_fragile">Sınacaq yük</h3>
+                    <p data-i18n="cargo_fragile_desc">Xüsusi qablaşdırma</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DGR Section -->
+        <section class="dgr-section" id="dgr">
+            <div class="dgr-container">
+                <div class="dgr-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> <span data-i18n="dgr_title">IATA DGR təhlükəli yüklər sinifləri</span></h3>
+                    <p data-i18n="dgr_subtitle">Siniflərə görə təhlükəli yüklərin beynəlxalq daşınma qaydaları</p>
+                </div>
+                <div class="dgr-table-wrapper">
+                    <table class="dgr-classes-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="dgr_class">Sinif</th>
+                                <th data-i18n="dgr_desc">Təsvir</th>
+                                <th data-i18n="dgr_examples">Nümunələr</th>
+                                <th data-i18n="dgr_notes">Qeydlər</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-1">&#128163; <span data-i18n="class1_name">Sinif 1</span></span></td>
+                                <td data-i18n="class1_desc">Partlayıcı maddələr</td>
+                                <td data-i18n="class1_examples">Feyerverklər, döyüş sursatı</td>
+                                <td data-i18n="class1_notes">Yalnız yük reysləri</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-2">&#128293; <span data-i18n="class2_name">Sinif 2.1</span></span></td>
+                                <td data-i18n="class2_desc">Yanar qazlar</td>
+                                <td data-i18n="class2_examples">Propan, butan</td>
+                                <td data-i18n="class2_notes">Qapalı qablaşdırma</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-3">&#128738; <span data-i18n="class3_name">Sinif 3</span></span></td>
+                                <td data-i18n="class3_desc">Yanar mayelər</td>
+                                <td data-i18n="class3_examples">Benzin, aseton</td>
+                                <td data-i18n="class3_notes">Qapalı konteynerlər</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-4">&#128293; <span data-i18n="class4_name">Sinif 4.1</span></span></td>
+                                <td data-i18n="class4_desc">Yanar bərk maddələr</td>
+                                <td data-i18n="class4_examples">Kükürd, maqnezium</td>
+                                <td data-i18n="class4_notes">Sürtünmədən qoruma</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-5">&#129514; <span data-i18n="class5_name">Sinif 5.1</span></span></td>
+                                <td data-i18n="class5_desc">Oksidləşdirici maddələr</td>
+                                <td data-i18n="class5_examples">Hidrogen peroksid</td>
+                                <td data-i18n="class5_notes">Yanar materiallardan təcrid</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-6">&#9760; <span data-i18n="class6_name">Sinif 6.1</span></span></td>
+                                <td data-i18n="class6_desc">Zəhərli maddələr</td>
+                                <td data-i18n="class6_examples">Pestisidlər, arsen</td>
+                                <td data-i18n="class6_notes">Qapalı qablaşdırma</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-7">&#9762; <span data-i18n="class7_name">Sinif 7</span></span></td>
+                                <td data-i18n="class7_desc">Radioaktiv materiallar</td>
+                                <td data-i18n="class7_examples">Uran, plutonium</td>
+                                <td data-i18n="class7_notes">Qurğuşun qoruma</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-8">&#129514; <span data-i18n="class8_name">Sinif 8</span></span></td>
+                                <td data-i18n="class8_desc">Korroziv maddələr</td>
+                                <td data-i18n="class8_examples">Sulfat turşusu</td>
+                                <td data-i18n="class8_notes">Turşu davamlı qablaşdırma</td>
+                            </tr>
+                            <tr>
+                                <td><span class="dgr-class-badge dgr-class-9">&#128230; <span data-i18n="class9_name">Sinif 9</span></span></td>
+                                <td data-i18n="class9_desc">Digər təhlükəli maddələr</td>
+                                <td data-i18n="class9_examples">Lithium batareyalar</td>
+                                <td data-i18n="class9_notes">Xüsusi nişanlanma</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading Charts Section -->
+        <section class="loading-charts-section" id="loading-charts">
+            <div class="charts-container">
+                <h2 class="section-title" style="color:white;"><i class="fas fa-chart-line"></i> <span data-i18n="charts_title">Boeing Yükləmə Cədvəlləri</span></h2>
+                <p class="section-subtitle" style="color:rgba(255,255,255,0.8);" data-i18n="charts_subtitle">Real hava gəmisi yükləmə limitləri</p>
+                <div class="charts-tabs">
+                    <button class="chart-tab active" onclick="showChart('b747')">Boeing 747-400B</button>
+                    <button class="chart-tab" onclick="showChart('b757')">Boeing 757</button>
+                    <button class="chart-tab" onclick="showChart('b767')">Boeing 767-300</button>
+                </div>
+                <div class="chart-content active" id="chart-b747">
+                    <div class="chart-info">
+                        <h4>Boeing 747-400B - Bulk Cargo Compartment</h4>
+                        <p data-i18n="b747_info">Maksimum çəki: 596 kg | Ölçülər: 10-162 cm hündürlük × 10-111 cm en</p>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="chart-table">
+                            <thead>
+                                <tr><th data-i18n="height">Hündürlük</th><th>10</th><th>30</th><th>50</th><th>70</th><th>90</th><th>111</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>10</td><td>596</td><td>571</td><td>469</td><td>393</td><td>342</td><td>304</td></tr>
+                                <tr><td>30</td><td>596</td><td>508</td><td>419</td><td>368</td><td>330</td><td>304</td></tr>
+                                <tr><td>50</td><td>558</td><td>457</td><td>393</td><td>342</td><td>317</td><td>304</td></tr>
+                                <tr><td>70</td><td>508</td><td>431</td><td>393</td><td>342</td><td>317</td><td>304</td></tr>
+                                <tr><td>90</td><td>469</td><td>406</td><td>368</td><td>330</td><td>304</td><td>304</td></tr>
+                                <tr><td>111</td><td>406</td><td>393</td><td>355</td><td>330</td><td>304</td><td>292</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="chart-content" id="chart-b757">
+                    <div class="chart-info">
+                        <h4>Boeing 757</h4>
+                        <p data-i18n="b757_info">Maksimum çəki: 736 kg</p>
+                    </div>
+                    <table class="chart-table">
+                        <thead>
+                            <tr><th data-i18n="height">Hündürlük</th><th>12</th><th>38</th><th>63</th><th>88</th><th>101</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>12</td><td>736</td><td>533</td><td>426</td><td>358</td><td>332</td></tr>
+                            <tr><td>38</td><td>736</td><td>533</td><td>426</td><td>358</td><td>332</td></tr>
+                            <tr><td>63</td><td>736</td><td>533</td><td>426</td><td>358</td><td>332</td></tr>
+                            <tr><td>88</td><td>487</td><td>396</td><td>340</td><td>287</td><td>261</td></tr>
+                            <tr><td>101</td><td>383</td><td>327</td><td>276</td><td>226</td><td>200</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="chart-content" id="chart-b767">
+                    <div class="chart-info">
+                        <h4>Boeing 767-300</h4>
+                        <p data-i18n="b767_info">Maksimum çəki: 302 kg</p>
+                    </div>
+                    <table class="chart-table">
+                        <thead>
+                            <tr><th data-i18n="height">Hündürlük</th><th>12</th><th>25</th><th>50</th><th>76</th><th>88</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>12</td><td>302</td><td>302</td><td>302</td><td>302</td><td>302</td></tr>
+                            <tr><td>25</td><td>302</td><td>302</td><td>302</td><td>302</td><td>302</td></tr>
+                            <tr><td>50</td><td>302</td><td>302</td><td>302</td><td>302</td><td>302</td></tr>
+                            <tr><td>90</td><td>302</td><td>302</td><td>302</td><td>302</td><td>-</td></tr>
+                            <tr><td>115</td><td>302</td><td>302</td><td>302</td><td>-</td><td>-</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading Simulation Section -->
+        <section id="simulation">
+            <h2 class="section-title" data-i18n="sim_title">Yükləmə Mərkəzləşdirmə Simulyatoru</h2>
+            <p class="section-subtitle" data-i18n="sim_subtitle">Yükləri təyyarənin bölmələrinə bölün - limiti aşan zonalar qırmızı, düzgün zonalar yaşıl yanacaq</p>
+            
+            <div class="zones-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #4a90d9, #0066cc);"></div>
+                    <span data-i18n="zone_fwd">FWD (Ön) - 5000 kg</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #ff9500, #e67e22);"></div>
+                    <span data-i18n="zone_main">MAIN (Əsas) - 8000 kg</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #28a745, #218838);"></div>
+                    <span data-i18n="zone_aft">AFT (Arxa) - 5000 kg</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <span>Limit aşıldı (Qırmızı)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #27ae60;"></div>
+                    <span>Düzgün (Yaşıl)</span>
+                </div>
+            </div>
+            <div class="aircraft-photo-container" style="position: relative;">
+                <img src="silkway-cargo.jpg" class="aircraft-photo" id="aircraftImage" alt="Silk Way Cargo Aircraft" style="width: 100%; display: block;">
+                
+                <!-- Red/Green Status Indicators Overlay -->
+                <div class="status-indicators" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                    <!-- Forward Zone Status -->
+                    <div id="status-fwd" class="zone-status" style="position: absolute; top: 45%; left: 15%; width: 25%; height: 15%; border: 4px solid #27ae60; border-radius: 10px; background: rgba(39, 174, 96, 0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(39, 174, 96, 0.5);">
+                        <span style="color: #27ae60; font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(255,255,255,0.8);">FWD ✓</span>
+                    </div>
+                    <!-- Main Zone Status -->
+                    <div id="status-main" class="zone-status" style="position: absolute; top: 45%; left: 42%; width: 25%; height: 15%; border: 4px solid #27ae60; border-radius: 10px; background: rgba(39, 174, 96, 0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(39, 174, 96, 0.5);">
+                        <span style="color: #27ae60; font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(255,255,255,0.8);">MAIN ✓</span>
+                    </div>
+                    <!-- Aft Zone Status -->
+                    <div id="status-aft" class="zone-status" style="position: absolute; top: 45%; left: 69%; width: 22%; height: 15%; border: 4px solid #27ae60; border-radius: 10px; background: rgba(39, 174, 96, 0.2); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(39, 174, 96, 0.5);">
+                        <span style="color: #27ae60; font-weight: 800; font-size: 18px; text-shadow: 0 0 10px rgba(255,255,255,0.8);">AFT ✓</span>
+                    </div>
+                </div>
+                
+                <div class="loading-zones-overlay">
+                    <div class="loading-zone zone-fwd" id="zone-1"><span class="zone-label">1</span><span class="zone-weight" id="zw-1">0</span></div>
+                    <div class="loading-zone zone-fwd" id="zone-2"><span class="zone-label">2</span><span class="zone-weight" id="zw-2">0</span></div>
+                    <div class="loading-zone zone-fwd" id="zone-3"><span class="zone-label">3</span><span class="zone-weight" id="zw-3">0</span></div>
+                    <div class="loading-zone zone-fwd" id="zone-4"><span class="zone-label">4</span><span class="zone-weight" id="zw-4">0</span></div>
+                    <div class="loading-zone zone-main" id="zone-5"><span class="zone-label">5</span><span class="zone-weight" id="zw-5">0</span></div>
+                    <div class="loading-zone zone-main" id="zone-6"><span class="zone-label">6</span><span class="zone-weight" id="zw-6">0</span></div>
+                    <div class="loading-zone zone-main" id="zone-7"><span class="zone-label">7</span><span class="zone-weight" id="zw-7">0</span></div>
+                    <div class="loading-zone zone-main" id="zone-8"><span class="zone-label">8</span><span class="zone-weight" id="zw-8">0</span></div>
+                    <div class="loading-zone zone-aft" id="zone-9"><span class="zone-label">9</span><span class="zone-weight" id="zw-9">0</span></div>
+                    <div class="loading-zone zone-aft" id="zone-10"><span class="zone-label">10</span><span class="zone-weight" id="zw-10">0</span></div>
+                    <div class="loading-zone zone-aft" id="zone-11"><span class="zone-label">11</span><span class="zone-weight" id="zw-11">0</span></div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px;">
+                <div>
+                    <div class="compartment-section">
+                        <div class="compartment-header">
+                            <div class="compartment-title"><i class="fas fa-arrow-up"></i> <span data-i18n="fwd_section">Ön bölmə (Forward)</span></div>
+                            <div data-i18n="fwd_limit">Limit: 5000 kq</div>
+                        </div>
+                        <div class="compartment-grid">
+                            <div class="compartment-input"><label>1L</label><input type="number" id="f-1l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>1R</label><input type="number" id="f-1r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>2L</label><input type="number" id="f-2l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>2R</label><input type="number" id="f-2r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>3L</label><input type="number" id="f-3l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>3R</label><input type="number" id="f-3r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>4L</label><input type="number" id="f-4l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>4R</label><input type="number" id="f-4r" placeholder="0" onchange="updateSim()"></div>
+                        </div>
+                    </div>
+                    <div class="compartment-section">
+                        <div class="compartment-header">
+                            <div class="compartment-title"><i class="fas fa-arrows-alt-h"></i> <span data-i18n="main_section">Əsas bölmə (Main)</span></div>
+                            <div data-i18n="main_limit">Limit: 8000 kq</div>
+                        </div>
+                        <div class="compartment-grid">
+                            <div class="compartment-input"><label>5L</label><input type="number" id="m-5l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>5R</label><input type="number" id="m-5r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>6L</label><input type="number" id="m-6l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>6R</label><input type="number" id="m-6r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>7L</label><input type="number" id="m-7l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>7R</label><input type="number" id="m-7r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>8L</label><input type="number" id="m-8l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>8R</label><input type="number" id="m-8r" placeholder="0" onchange="updateSim()"></div>
+                        </div>
+                    </div>
+                    <div class="compartment-section">
+                        <div class="compartment-header">
+                            <div class="compartment-title"><i class="fas fa-arrow-down"></i> <span data-i18n="aft_section">Arxa bölmə (Aft)</span></div>
+                            <div data-i18n="aft_limit">Limit: 5000 kq</div>
+                        </div>
+                        <div class="compartment-grid">
+                            <div class="compartment-input"><label>9L</label><input type="number" id="a-9l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>9R</label><input type="number" id="a-9r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>10L</label><input type="number" id="a-10l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>10R</label><input type="number" id="a-10r" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>11L</label><input type="number" id="a-11l" placeholder="0" onchange="updateSim()"></div>
+                            <div class="compartment-input"><label>11R</label><input type="number" id="a-11r" placeholder="0" onchange="updateSim()"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="results-panel">
+                        <h3 style="color:var(--display-cyan);margin-bottom:25px;"><i class="fas fa-chart-bar"></i> <span data-i18n="results">Nəticələr</span></h3>
+                        <div class="results-grid">
+                            <div class="result-box" id="rb-total">
+                                <div class="result-label" data-i18n="total_weight">Ümumi çəki</div>
+                                <div class="result-value" id="rv-total">0 kq</div>
+                            </div>
+                            <div class="result-box" id="rb-fwd">
+                                <div class="result-label" data-i18n="fwd_weight">Ön bölmə</div>
+                                <div class="result-value" id="rv-fwd">0 kq</div>
+                            </div>
+                            <div class="result-box" id="rb-main">
+                                <div class="result-label" data-i18n="main_weight">Əsas bölmə</div>
+                                <div class="result-value" id="rv-main">0 kq</div>
+                            </div>
+                            <div class="result-box" id="rb-aft">
+                                <div class="result-label" data-i18n="aft_weight">Arxa bölmə</div>
+                                <div class="result-value" id="rv-aft">0 kq</div>
+                            </div>
+                            <div class="result-box" id="rb-cg">
+                                <div class="result-label" data-i18n="cg">Ağırlıq mərkəzi</div>
+                                <div class="result-value" id="rv-cg">0%</div>
+                            </div>
+                            <div class="result-box" id="rb-bal">
+                                <div class="result-label" data-i18n="balance">Balans</div>
+                                <div class="result-value" id="rv-bal">OK</div>
+                            </div>
+                        </div>
+                        <div class="error-log" id="err-log">
+                            <h4 style="color:#ff6b7a;"><i class="fas fa-times-circle"></i> <span data-i18n="errors">Xətalar:</span></h4>
+                            <ul id="err-list"></ul>
+                        </div>
+                    </div>
+                    <div class="sim-buttons">
+                        <button class="btn btn-primary" onclick="updateSim()"><i class="fas fa-calculator"></i> <span data-i18n="btn_calc">Hesabla</span></button>
+                        <button class="btn btn-success" onclick="optSim()"><i class="fas fa-magic"></i> <span data-i18n="btn_opt">Optimallaşdır</span></button>
+                        <button class="btn btn-warning" onclick="clrSim()"><i class="fas fa-undo"></i> <span data-i18n="btn_reset">Sıfırla</span></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AWB Section -->
+        <section class="awb-section" id="awb-section">
+            <div class="awb-main-container">
+                <h2 class="section-title" style="margin-bottom: 10px;">
+                    <i class="fas fa-file-invoice"></i> <span data-i18n="awb_title">Hava Yük Qəbzi (Air Waybill)</span>
+                </h2>
+                <p class="section-subtitle" style="margin-bottom: 35px;" data-i18n="awb_subtitle">IATA standartlarına uyğun aviayük qəbzi forması</p>
+
+                <!-- Airline Codes Reference -->
+                <div class="airline-codes-panel no-print">
+                    <h3><i class="fas fa-plane"></i> <span data-i18n="airline_codes">IATA Aviaşirkət Kodları</span></h3>
+                    <div class="airline-codes-grid">
+                        <div class="airline-code-item"><span class="airline-code-flag">🇦🇿</span><div class="airline-code-info"><div class="airline-code-name">AZAL Azerbaijan Airlines</div><div class="airline-code-number">Kod: 771 | J2</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇹🇷</span><div class="airline-code-info"><div class="airline-code-name">Turkish Airlines</div><div class="airline-code-number">Kod: 235 | TK</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇦🇪</span><div class="airline-code-info"><div class="airline-code-name">Emirates</div><div class="airline-code-number">Kod: 176 | EK</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇩🇪</span><div class="airline-code-info"><div class="airline-code-name">Lufthansa Cargo</div><div class="airline-code-number">Kod: 020 | LH</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇬🇧</span><div class="airline-code-info"><div class="airline-code-name">British Airways</div><div class="airline-code-number">Kod: 125 | BA</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇸🇬</span><div class="airline-code-info"><div class="airline-code-name">Singapore Airlines</div><div class="airline-code-number">Kod: 618 | SQ</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇶🇦</span><div class="airline-code-info"><div class="airline-code-name">Qatar Airways</div><div class="airline-code-number">Kod: 157 | QR</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇳🇱</span><div class="airline-code-info"><div class="airline-code-name">KLM Cargo</div><div class="airline-code-number">Kod: 074 | KL</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇫🇷</span><div class="airline-code-info"><div class="airline-code-name">Air France</div><div class="airline-code-number">Kod: 057 | AF</div></div></div>
+                        <div class="airline-code-item"><span class="airline-code-flag">🇷🇺</span><div class="airline-code-info"><div class="airline-code-name">Aeroflot</div><div class="airline-code-number">Kod: 555 | SU</div></div></div>
+                    </div>
+                </div>
+
+                <!-- Tabs for AWB modes -->
+                <div class="awb-tabs no-print">
+                    <button class="awb-tab active" onclick="switchAwbTab('electronic')">⚡ <span data-i18n="awb_electronic">Elektron Doldurma</span></button>
+                    <button class="awb-tab" onclick="switchAwbTab('manual')">✏️ <span data-i18n="awb_manual">Əl ilə Doldurma</span></button>
+                </div>
+
+                <!-- Electronic Mode -->
+                <div class="awb-tab-content active" id="awb-electronic">
+                    <div class="awb-input-panel no-print">
+                        <h2><i class="fas fa-edit"></i> <span data-i18n="awb_fill_title">Aviayük Qəbzi Məlumatlarını Daxil Edin</span></h2>
+                        
+                        <div class="awb-input-grid">
+                            <div class="awb-input-group">
+                                <label data-i18n="label_airline">Aviaşirkət</label>
+                                <select id="input-airline">
+                                    <option value="">-- Aviaşirkət seçin --</option>
+                                    <option value="771">🇦🇿 AZAL Azerbaijan Airlines (771)</option>
+                                    <option value="235">🇹🇷 Turkish Airlines (235)</option>
+                                    <option value="176">🇦🇪 Emirates (176)</option>
+                                    <option value="020">🇩🇪 Lufthansa Cargo (020)</option>
+                                    <option value="125">🇬🇧 British Airways (125)</option>
+                                    <option value="618">🇸🇬 Singapore Airlines (618)</option>
+                                    <option value="157">🇶🇦 Qatar Airways (157)</option>
+                                    <option value="074">🇳🇱 KLM Cargo (074)</option>
+                                    <option value="057">🇫🇷 Air France (057)</option>
+                                    <option value="555">🇷🇺 Aeroflot (555)</option>
+                                </select>
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_awb_number">AWB Nömrəsi (8 rəqəm)</label>
+                                <input type="text" id="input-awb-number" placeholder="12345678" maxlength="8">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_shipper">Göndərən</label>
+                                <textarea id="input-shipper" placeholder="Şirkət adı&#10;Ünvan&#10;Şəhər, Ölkə"></textarea>
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_consignee">Alıcı</label>
+                                <textarea id="input-consignee" placeholder="Şirkət adı&#10;Ünvan&#10;Şəhər, Ölkə"></textarea>
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_origin">Çıxış Hava Limanı</label>
+                                <select id="input-origin">
+                                    <option value="">-- Hava limanı seçin --</option>
+                                    <option value="GYD">🇦🇿 GYD - Bakı (Heydər Əliyev)</option>
+                                    <option value="IST">🇹🇷 IST - İstanbul</option>
+                                    <option value="SVO">🇷🇺 SVO - Moskva (Şeremetyevo)</option>
+                                    <option value="DXB">🇦🇪 DXB - Dubay</option>
+                                    <option value="FRA">🇩🇪 FRA - Frankfurt</option>
+                                    <option value="LHR">🇬🇧 LHR - London (Heathrow)</option>
+                                    <option value="SIN">🇸🇬 SIN - Sinqapur</option>
+                                    <option value="DOH">🇶🇦 DOH - Doha</option>
+                                    <option value="AMS">🇳🇱 AMS - Amsterdam</option>
+                                    <option value="CDG">🇫🇷 CDG - Paris (Charles de Gaulle)</option>
+                                </select>
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_dest">Təyinat Hava Limanı</label>
+                                <select id="input-dest">
+                                    <option value="">-- Hava limanı seçin --</option>
+                                    <option value="GYD">🇦🇿 GYD - Bakı (Heydər Əliyev)</option>
+                                    <option value="IST">🇹🇷 IST - İstanbul</option>
+                                    <option value="SVO">🇷🇺 SVO - Moskva (Şeremetyevo)</option>
+                                    <option value="DXB">🇦🇪 DXB - Dubay</option>
+                                    <option value="FRA">🇩🇪 FRA - Frankfurt</option>
+                                    <option value="LHR">🇬🇧 LHR - London (Heathrow)</option>
+                                    <option value="SIN">🇸🇬 SIN - Sinqapur</option>
+                                    <option value="DOH">🇶🇦 DOH - Doha</option>
+                                    <option value="AMS">🇳🇱 AMS - Amsterdam</option>
+                                    <option value="CDG">🇫🇷 CDG - Paris (Charles de Gaulle)</option>
+                                </select>
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_currency">Valyuta</label>
+                                <select id="input-currency">
+                                    <option value="AZN" selected>AZN - Azərbaycan Manatı</option>
+                                    <option value="USD">USD - ABŞ Dolları</option>
+                                    <option value="EUR">EUR - Avro</option>
+                                    <option value="GBP">GBP - İngilis Funtu</option>
+                                </select>
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_flight">Reys / Tarix</label>
+                                <input type="text" id="input-flight" placeholder="J2001 / 08APR">
+                            </div>
+                        </div>
+
+                        <h3 style="font-size: 1rem; color: var(--text-white); margin: 30px 0 20px;"><i class="fas fa-box"></i> <span data-i18n="cargo_info_title">Yük Məlumatları</span></h3>
+                        <div class="awb-cargo-inputs">
+                            <div class="awb-input-group">
+                                <label data-i18n="label_pieces">Miqdar (ədəd)</label>
+                                <input type="number" id="input-pieces" placeholder="0" value="1">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_gross_weight">Brutto çəki (kq)</label>
+                                <input type="number" id="input-gross-weight" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_length">Uzunluq (sm)</label>
+                                <input type="number" id="input-length" placeholder="0" onchange="calcVolumeWeight()">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_width">En (sm)</label>
+                                <input type="number" id="input-width" placeholder="0" onchange="calcVolumeWeight()">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_height">Hündürlük (sm)</label>
+                                <input type="number" id="input-height" placeholder="0" onchange="calcVolumeWeight()">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_vol_weight">Həcm çəkisi (kq)</label>
+                                <input type="number" id="input-vol-weight" placeholder="0.00" readonly style="background: rgba(0,0,0,0.3);">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_rate">Tarif (AZN/kq)</label>
+                                <input type="number" id="input-rate" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="awb-input-group">
+                                <label data-i18n="label_description">Yükün təsviri</label>
+                                <input type="text" id="input-description" placeholder="GENERAL CARGO">
+                            </div>
+                        </div>
+
+                        <button class="awb-calc-btn" onclick="calculateAWB()">
+                            <i class="fas fa-calculator"></i> <span data-i18n="btn_calc_awb">AWB-ni Hesabla və Doldur</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manual Mode -->
+                <div class="awb-tab-content" id="awb-manual">
+                    <div class="awb-input-panel no-print" style="background: linear-gradient(145deg, rgba(255,193,7,0.1), rgba(255,193,7,0.05)); border: 2px solid rgba(255,193,7,0.3);">
+                        <h2><i class="fas fa-hand-pointer"></i> <span data-i18n="manual_title">Əl ilə Doldurma Rejimi</span></h2>
+                        <p style="color: var(--text-gray); margin-bottom: 25px;" data-i18n="manual_desc">Aşağıdakı formada bütün sahələri əl ilə doldura bilərsiniz. Hesablama avtomatik aparılacaq.</p>
+                        <button class="awb-calc-btn" onclick="showToast(translations[currentLang].manual_active, 'success')" style="background: linear-gradient(145deg, #f39c12, #e67e22);">
+                            <i class="fas fa-check"></i> <span data-i18n="btn_confirm_mode">Rejimi Təsdiqlə</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Official IATA AWB Form -->
+                <div class="awb-form-wrapper">
+                    <table class="awb-official">
+                        <!-- Row 1: Shipper, AWB Title -->
+                        <tr>
+                            <td colspan="3" rowspan="2" style="width: 45%;">
+                                <div class="awb-label">Shipper's Name and Address</div>
+                                <textarea id="awb-shipper" rows="4"></textarea>
+                            </td>
+                            <td style="width: 20%;">
+                                <div class="awb-label">Shipper's Account Number</div>
+                                <input type="text" id="awb-shipper-acc">
+                            </td>
+                            <td colspan="3" rowspan="2" style="width: 35%; text-align: center;">
+                                <div style="border: 2px solid #000; padding: 10px; margin-bottom: 5px;">
+                                    <div class="awb-label">Not Negotiable</div>
+                                    <div style="font-size: 14pt; font-weight: bold;">Air Waybill</div>
+                                    <div style="font-size: 8pt;">Issued by</div>
+                                </div>
+                                <div style="font-size: 8pt; text-align: left; line-height: 1.3; margin-top: 5px;">
+                                    Copies 1, 2 and 3 of this Air Waybill are originals and have the same validity.
+                                </div>
+                            </td>
+                        </tr>
+                        <tr><td></td></tr>
+                        
+                        <!-- Row 2: Consignee -->
+                        <tr>
+                            <td colspan="3" rowspan="2">
+                                <div class="awb-label">Consignee's Name and Address</div>
+                                <textarea id="awb-consignee" rows="4"></textarea>
+                            </td>
+                            <td rowspan="2">
+                                <div class="awb-label">Consignee's Account Number</div>
+                                <input type="text" id="awb-consignee-acc">
+                            </td>
+                            <td colspan="3" rowspan="2" style="font-size: 7pt; line-height: 1.3;">
+                                It is agreed that the goods declared herein are accepted in apparent good order and condition (except as noted) for carriage SUBJECT TO THE CONDITIONS OF CONTRACT ON THE REVERSE HEREOF.
+                            </td>
+                        </tr>
+                        <tr></tr>
+                        
+                        <!-- Row 3: Agent -->
+                        <tr>
+                            <td colspan="5">
+                                <div class="awb-label">Issuing Carrier's Agent Name and City</div>
+                                <input type="text" id="awb-agent" style="width: 100%;">
+                            </td>
+                            <td colspan="2" style="font-size: 7pt;">Accounting Information</td>
+                        </tr>
+                        
+                        <!-- Row 4: Agent Code, Account -->
+                        <tr>
+                            <td colspan="2">
+                                <div class="awb-label">Agent's IATA Code</div>
+                                <input type="text" id="awb-agent-iata">
+                            </td>
+                            <td colspan="2">
+                                <div class="awb-label">Account No.</div>
+                                <input type="text" id="awb-agent-acc">
+                            </td>
+                            <td colspan="3"></td>
+                        </tr>
+                        
+                        <!-- Row 5: Routing -->
+                        <tr>
+                            <td colspan="4">
+                                <div class="awb-label">Airport of Departure (Addr. of First Carrier) and Requested Routing</div>
+                                <input type="text" id="awb-dep-airport" style="width: 100%;">
+                            </td>
+                            <td>
+                                <div class="awb-label">Reference Number</div>
+                                <input type="text" id="awb-ref-num">
+                            </td>
+                            <td colspan="2">
+                                <div class="awb-label">Optional Shipping Information</div>
+                                <input type="text" id="awb-optional">
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 6: To, By, etc -->
+                        <tr style="text-align: center;">
+                            <td style="width: 10%;"><div class="awb-label">To</div></td>
+                            <td style="width: 15%;"><div class="awb-label">By First Carrier</div></td>
+                            <td style="width: 15%;"><div class="awb-label">Routing and Destination</div></td>
+                            <td style="width: 10%;"><div class="awb-label">To</div></td>
+                            <td style="width: 10%;"><div class="awb-label">By</div></td>
+                            <td style="width: 10%;"><div class="awb-label">To</div></td>
+                            <td style="width: 10%;"><div class="awb-label">By</div></td>
+                        </tr>
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-to1" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-by1" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-routing" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-to2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-by2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-to3" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-by3" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <!-- Row 7: Destination, Flight, Currency, etc -->
+                        <tr>
+                            <td colspan="2">
+                                <div class="awb-label">Airport of Destination</div>
+                                <input type="text" id="awb-dest-airport">
+                            </td>
+                            <td>
+                                <div class="awb-label">Requested Flight/Date</div>
+                                <input type="text" id="awb-flight-date">
+                            </td>
+                            <td>
+                                <div class="awb-label">Currency</div>
+                                <input type="text" id="awb-currency" style="text-align: center;">
+                            </td>
+                            <td>
+                                <div class="awb-label">CHGS<br>Code</div>
+                                <input type="text" id="awb-chgs" value="PP" style="text-align: center;">
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="awb-label">WT/VAL</div>
+                                <div style="display: flex; justify-content: center; gap: 5px;">
+                                    <label style="font-size: 7pt;">PP <input type="checkbox" id="awb-wt-pp" checked></label>
+                                    <label style="font-size: 7pt;">CL <input type="checkbox" id="awb-wt-cl"></label>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="awb-label">Other</div>
+                                <div style="display: flex; justify-content: center; gap: 5px;">
+                                    <label style="font-size: 7pt;">PP <input type="checkbox" id="awb-oth-pp" checked></label>
+                                    <label style="font-size: 7pt;">CL <input type="checkbox" id="awb-oth-cl"></label>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 8: Declared Values -->
+                        <tr>
+                            <td colspan="2">
+                                <div class="awb-label">Declared Value for Carriage</div>
+                                <input type="text" id="awb-dv-carriage" value="NVD">
+                            </td>
+                            <td colspan="2">
+                                <div class="awb-label">Declared Value for Customs</div>
+                                <input type="text" id="awb-dv-customs" value="NCV">
+                            </td>
+                            <td colspan="3">
+                                <div class="awb-label">Amount of Insurance</div>
+                                <input type="text" id="awb-insurance" value="XXX">
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 9: Handling Info -->
+                        <tr>
+                            <td colspan="7">
+                                <div class="awb-label">Handling Information</div>
+                                <textarea id="awb-handling" rows="2"></textarea>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 10: SCI -->
+                        <tr>
+                            <td colspan="6"></td>
+                            <td style="text-align: center;"><div class="awb-label">SCI</div></td>
+                        </tr>
+                        
+                        <!-- Cargo Table Header -->
+                        <tr style="text-align: center; font-size: 8pt;">
+                            <td style="width: 8%;"><div class="awb-label">No. of<br>Pieces<br>RCP</div></td>
+                            <td style="width: 10%;"><div class="awb-label">Gross<br>Weight</div></td>
+                            <td style="width: 8%;"><div class="awb-label">kg<br>lb</div></td>
+                            <td style="width: 10%;"><div class="awb-label">Rate<br>Class<br>Commodity<br>Item No.</div></td>
+                            <td style="width: 12%;"><div class="awb-label">Chargeable<br>Weight</div></td>
+                            <td style="width: 10%;"><div class="awb-label">Rate /<br>Charge</div></td>
+                            <td style="width: 12%;"><div class="awb-label">Total</div></td>
+                        </tr>
+                        
+                        <!-- Cargo Data Row 1 -->
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-pcs1" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-gw1" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-unit1" value="K" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-class1" value="Q" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-cw1" style="text-align: center; font-weight: bold;"></td>
+                            <td><input type="text" id="awb-rate1" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-total1" style="text-align: center; font-weight: bold;"></td>
+                        </tr>
+                        
+                        <!-- Cargo Data Row 2 -->
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-pcs2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-gw2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-unit2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-class2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-cw2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-rate2" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-total2" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <!-- Nature and Quantity of Goods -->
+                        <tr>
+                            <td colspan="7" rowspan="3">
+                                <div class="awb-label">Nature and Quantity of Goods (incl. Dimensions or Volume)</div>
+                                <textarea id="awb-nature" rows="4"></textarea>
+                            </td>
+                        </tr>
+                        <tr></tr>
+                        <tr></tr>
+                        
+                        <!-- Charges Section -->
+                        <tr style="text-align: center; font-size: 8pt;">
+                            <td><div class="awb-label">Prepaid</div></td>
+                            <td><div class="awb-label">Weight Charge</div></td>
+                            <td><div class="awb-label">Collect</div></td>
+                            <td colspan="4" rowspan="8" style="font-size: 7pt; line-height: 1.3;">
+                                <p>I hereby certify that the particulars on the face hereof are correct and that insofar as any part of the consignment contains dangerous goods, such part is properly described by name and is in proper condition for carriage by air.</p>
+                                <div style="margin-top: 30px; border-top: 1px solid #000; padding-top: 5px;">Signature of Shipper or his Agent</div>
+                                <div style="margin-top: 20px;">Executed on (date) <input type="text" id="awb-exec-date" style="width: 80px; display: inline; border-bottom: 1px solid #000;"> at (place) <input type="text" id="awb-exec-place" style="width: 80px; display: inline; border-bottom: 1px solid #000;"></div>
+                                <div style="margin-top: 20px; border-top: 1px solid #000; padding-top: 5px;">Signature of Issuing Carrier or its Agent</div>
+                            </td>
+                        </tr>
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-prepaid" style="text-align: center;"></td>
+                            <td><input type="text" id="awb-wc" style="text-align: center; font-weight: bold;"></td>
+                            <td><input type="text" id="awb-collect" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <!-- Valuation Charge -->
+                        <tr style="text-align: center; font-size: 8pt;">
+                            <td colspan="3"><div class="awb-label">Valuation Charge</div></td>
+                        </tr>
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-vc-prepaid" style="text-align: center;"></td>
+                            <td></td>
+                            <td><input type="text" id="awb-vc-collect" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <!-- Tax -->
+                        <tr style="text-align: center; font-size: 8pt;">
+                            <td colspan="3"><div class="awb-label">Tax</div></td>
+                        </tr>
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-tax-prepaid" style="text-align: center;"></td>
+                            <td></td>
+                            <td><input type="text" id="awb-tax-collect" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <!-- Total Other Charges -->
+                        <tr style="text-align: center; font-size: 8pt;">
+                            <td colspan="3"><div class="awb-label">Total Other Charges Due Agent</div></td>
+                        </tr>
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-oca-prepaid" style="text-align: center;"></td>
+                            <td></td>
+                            <td><input type="text" id="awb-oca-collect" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <tr style="text-align: center; font-size: 8pt;">
+                            <td colspan="3"><div class="awb-label">Total Other Charges Due Carrier</div></td>
+                            <td colspan="4" rowspan="4"></td>
+                        </tr>
+                        <tr style="text-align: center;">
+                            <td><input type="text" id="awb-occ-prepaid" style="text-align: center;"></td>
+                            <td></td>
+                            <td><input type="text" id="awb-occ-collect" style="text-align: center;"></td>
+                        </tr>
+                        
+                        <!-- Total Prepaid/Collect -->
+                        <tr style="text-align: center; font-size: 8pt; background: #f5f5f5;">
+                            <td><div class="awb-label" style="font-weight: bold;">Total Prepaid</div></td>
+                            <td></td>
+                            <td><div class="awb-label" style="font-weight: bold;">Total Collect</div></td>
+                        </tr>
+                        <tr style="text-align: center; background: #f5f5f5;">
+                            <td><input type="text" id="awb-total-prepaid" style="text-align: center; font-weight: bold; font-size: 10pt;"></td>
+                            <td></td>
+                            <td><input type="text" id="awb-total-collect" style="text-align: center; font-weight: bold; font-size: 10pt;"></td>
+                        </tr>
+                        
+                        <!-- Currency Conversion -->
+                        <tr>
+                            <td colspan="2">
+                                <div class="awb-label">Currency Conversion Rates</div>
+                                <input type="text" id="awb-ccr">
+                            </td>
+                            <td colspan="2">
+                                <div class="awb-label">CC Charges in Dest. Currency</div>
+                                <input type="text" id="awb-cc-dest">
+                            </td>
+                            <td colspan="3" rowspan="2" style="text-align: center; vertical-align: middle;">
+                                <div style="border: 1px solid #000; padding: 10px;">
+                                    <div class="awb-label" style="font-weight: bold;">For Carrier's Use only<br>at Destination</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="awb-label">Charges at Destination</div>
+                                <input type="text" id="awb-charges-dest">
+                            </td>
+                            <td colspan="2">
+                                <div class="awb-label">Total Collect Charges</div>
+                                <input type="text" id="awb-tcc" style="font-weight: bold; font-size: 11pt; text-align: center;">
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <!-- AWB Number Display -->
+                    <div style="text-align: center; margin-top: 20px; padding: 20px; border: 2px solid #000; background: #f9f9f9; border-radius: 8px;">
+                        <div class="awb-label">Air Waybill Number</div>
+                        <div id="awb-display-number" style="font-size: 18pt; font-weight: bold; font-family: 'Courier Prime', monospace;">771-________</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="awb-action-btns no-print">
+                    <button class="awb-action-btn secondary" onclick="clearAWBForm()">
+                        <i class="fas fa-trash"></i> <span data-i18n="btn_clear">Təmizlə</span>
+                    </button>
+                    <button class="awb-action-btn primary" onclick="autoCalculateAWB()">
+                        <i class="fas fa-magic"></i> <span data-i18n="btn_auto">Avto-Hesabla</span>
+                    </button>
+                    <button class="awb-action-btn success" onclick="printAWB()">
+                        <i class="fas fa-print"></i> <span data-i18n="btn_print">Çap et / PDF</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section class="calculator-section" id="calculator">
+            <div class="calc-container">
+                <div style="text-align:center;margin-bottom:40px;">
+                    <h2 style="font-family:'Montserrat',sans-serif;font-size:2.2rem;color:var(--primary-color);margin-bottom:15px;" data-i18n="calc_title">Daşıma xərcləri kalkulyatoru</h2>
+                    <p style="color:#666;font-size:1.1rem;" data-i18n="calc_subtitle">4 nəqliyyat növü ilə optimal marşrut seçin</p>
+                </div>
+                
+                <!-- Input Panel -->
+                <div class="calc-card" style="margin-bottom:25px; background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%); border: 2px solid #e0e0e0;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px;">
+                        <!-- Route -->
+                        <div>
+                            <p style="font-size:13px;font-weight:700;color:var(--primary-color);margin-bottom:15px;text-transform:uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-route" style="margin-right:8px;color:var(--secondary-color);"></i><span data-i18n="route">Marşrut</span>
+                            </p>
+                            <div style="margin-bottom:15px;">
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">
+                                    <i class="fas fa-plane-departure" style="color:var(--success-color);margin-right:5px;"></i><span data-i18n="origin">Çıxış</span>
+                                </label>
+                                <select id="calc-origin" class="calc-select" style="border: 2px solid #ddd; font-weight: 500;">
+                                    <option value="baku">🇦🇿 Bakı (GYD)</option>
+                                    <option value="istanbul">🇹🇷 İstanbul (IST)</option>
+                                    <option value="moscow">🇷🇺 Moskva (SVO)</option>
+                                    <option value="dubai">🇦🇪 Dubay (DXB)</option>
+                                    <option value="london">🇬🇧 London (LHR)</option>
+                                    <option value="frankfurt">🇩🇪 Frankfurt (FRA)</option>
+                                    <option value="paris">🇫🇷 Paris (CDG)</option>
+                                    <option value="amsterdam">🇳🇱 Amsterdam (AMS)</option>
+                                    <option value="singapore">🇸🇬 Sinqapur (SIN)</option>
+                                    <option value="hongkong">🇭🇰 Honq Konq (HKG)</option>
+                                    <option value="shanghai">🇨🇳 Şanxay (PVG)</option>
+                                    <option value="newyork">🇺🇸 Nyu York (JFK)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">
+                                    <i class="fas fa-plane-arrival" style="color:var(--accent-color);margin-right:5px;"></i><span data-i18n="destination">Təyinat</span>
+                                </label>
+                                <select id="calc-dest" class="calc-select" style="border: 2px solid #ddd; font-weight: 500;">
+                                    <option value="istanbul">🇹🇷 İstanbul (IST)</option>
+                                    <option value="baku">🇦🇿 Bakı (GYD)</option>
+                                    <option value="moscow">🇷🇺 Moskva (SVO)</option>
+                                    <option value="dubai">🇦🇪 Dubay (DXB)</option>
+                                    <option value="london">🇬🇧 London (LHR)</option>
+                                    <option value="frankfurt">🇩🇪 Frankfurt (FRA)</option>
+                                    <option value="paris">🇫🇷 Paris (CDG)</option>
+                                    <option value="amsterdam">🇳🇱 Amsterdam (AMS)</option>
+                                    <option value="singapore">🇸🇬 Sinqapur (SIN)</option>
+                                    <option value="hongkong">🇭🇰 Honq Konq (HKG)</option>
+                                    <option value="shanghai">🇨🇳 Şanxay (PVG)</option>
+                                    <option value="newyork">🇺🇸 Nyu York (JFK)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Cargo Details -->
+                        <div>
+                            <p style="font-size:13px;font-weight:700;color:var(--primary-color);margin-bottom:15px;text-transform:uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-box-open" style="margin-right:8px;color:var(--warning-color);"></i><span data-i18n="cargo">Yük məlumatları</span>
+                            </p>
+                            <div style="margin-bottom:15px;">
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">
+                                    <i class="fas fa-weight-hanging" style="color:var(--warning-color);margin-right:5px;"></i><span data-i18n="weight">Brutto çəki (kq)</span>
+                                </label>
+                                <input type="number" id="calc-weight" class="calc-input" value="100" min="1" style="border: 2px solid #ddd; font-weight: 600;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">
+                                    <i class="fas fa-tag" style="color:#9b59b6;margin-right:5px;"></i><span data-i18n="category">Yük növü</span>
+                                </label>
+                                <select id="calc-cargo" class="calc-select" style="border: 2px solid #ddd; font-weight: 500;">
+                                    <option value="general">📦 Adi yük (General)</option>
+                                    <option value="perishable">❄️ Tez xarab olan (PER)</option>
+                                    <option value="dangerous">⚠️ Təhlükəli (DGR)</option>
+                                    <option value="pharma">💊 Farmasevtika (PHARMA)</option>
+                                    <option value="valuable">💎 Dəyərli (VAL)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Dimensions -->
+                        <div>
+                            <p style="font-size:13px;font-weight:700;color:var(--primary-color);margin-bottom:15px;text-transform:uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-ruler-combined" style="margin-right:8px;color:var(--secondary-color);"></i><span data-i18n="dimensions">Ölçülər (sm)</span>
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display:block;font-size:11px;color:#666;margin-bottom:4px;font-weight:600;" data-i18n="length">Uzunluq</label>
+                                    <input type="number" id="calc-len" class="calc-input" value="60" min="1" style="text-align: center; border: 2px solid #ddd;">
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;color:#666;margin-bottom:4px;font-weight:600;" data-i18n="width">En</label>
+                                    <input type="number" id="calc-wid" class="calc-input" value="40" min="1" style="text-align: center; border: 2px solid #ddd;">
+                                </div>
+                                <div>
+                                    <label style="display:block;font-size:11px;color:#666;margin-bottom:4px;font-weight:600;" data-i18n="height_dim">Hündürlük</label>
+                                    <input type="number" id="calc-hgt" class="calc-input" value="40" min="1" style="text-align: center; border: 2px solid #ddd;">
+                                </div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 10px; padding: 12px; color: white;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 10px; color: #aaa; text-transform: uppercase;">Həcm</div>
+                                        <div id="calc-vol" style="font-size: 18px; font-weight: 700; color: #00d4ff;">0.096 m³</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 10px; color: #aaa; text-transform: uppercase;">Həcm çəkisi</div>
+                                        <div id="calc-vol-weight" style="font-size: 18px; font-weight: 700; color: #ffd700;">16 kq</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Info -->
+                        <div>
+                            <p style="font-size:13px;font-weight:700;color:var(--primary-color);margin-bottom:15px;text-transform:uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-info-circle" style="margin-right:8px;color:var(--success-color);"></i>Chargeable Weight
+                            </p>
+                            <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 2px solid #4caf50; border-radius: 12px; padding: 15px; text-align: center;">
+                                <div style="font-size: 12px; color: #2e7d32; margin-bottom: 5px;">Ödəniləcək çəki</div>
+                                <div id="calc-chargeable" style="font-size: 32px; font-weight: 800; color: #1b5e20;">100 kq</div>
+                                <div style="font-size: 11px; color: #388e3c; margin-top: 5px;">Brutto və həcm çəkisindən böyüyü</div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <!-- Currency Selection -->
+                        <div>
+                            <p style="font-size:13px;font-weight:700;color:var(--primary-color);margin-bottom:15px;text-transform:uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-money-bill-wave" style="margin-right:8px;color:#f39c12;"></i><span data-i18n="label_currency">Valyuta</span>
+                            </p>
+                            <div style="background: linear-gradient(135deg, #fff9e6, #fff3cd); border: 2px solid #f39c12; border-radius: 12px; padding: 15px;">
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:10px;font-weight:600;">
+                                    <i class="fas fa-coins" style="color:#f39c12;margin-right:5px;"></i><span data-i18n="select_currency">Valyuta seçin</span>
+                                </label>
+                                <select id="calc-currency" class="calc-select" style="border: 2px solid #f39c12; font-weight: 600; background: white;" onchange="updateCurrencyDisplay()">
+                                    <option value="USD">💵 USD - ABŞ Dolları</option>
+                                    <option value="AZN" selected>💰 AZN - Azərbaycan Manatı</option>
+                                </select>
+                                <div style="margin-top: 10px; font-size: 11px; color: #856404; text-align: center;">
+                                    <i class="fas fa-exchange-alt"></i> 1 USD = 1.70 AZN
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="calc-btn-main" onclick="calcTransport()" style="background: linear-gradient(135deg, #003366, #0066cc); font-size: 18px; padding: 18px 40px;">
+                    <i class="fas fa-calculator" style="margin-right:12px;"></i><span data-i18n="btn_calc_all">Daşıma xərclərini hesabla</span>
+                </button>
+                
+                <!-- Results Section -->
+                <div class="calc-results" id="calc-res">
+                    <!-- Summary Banner -->
+                    <div id="calc-sum" style="background:linear-gradient(145deg, #003366, #0066cc); border-radius:16px; padding:25px; margin-bottom:25px; color:white;"></div>
+                    
+                    <!-- Results Cards -->
+                    <div id="calc-cards" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;"></div>
+                    
+                    <!-- Detailed Comparison Table -->
+                    <div id="calc-table" style="margin-top: 30px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1);"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 60px 40px 30px; position: relative; overflow: hidden;">
+            <!-- Animated background elements -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none;">
+                <div style="position: absolute; top: -50%; left: -10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,102,204,0.15) 0%, transparent 70%); border-radius: 50%; animation: float 8s ease-in-out infinite;"></div>
+                <div style="position: absolute; bottom: -30%; right: -5%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%); border-radius: 50%; animation: float 10s ease-in-out infinite reverse;"></div>
+            </div>
+
+            <!-- Main Logo Section -->
+            <div style="text-align: center; position: relative; z-index: 1;">
+                <!-- Creative Logo with Animation -->
+                <div style="display: inline-block; margin-bottom: 30px;">
+                    <div style="width: 120px; height: 120px; margin: 0 auto 20px; background: linear-gradient(135deg, #0066cc, #00d4ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 40px rgba(0,102,204,0.5); animation: logoPulse 3s ease-in-out infinite;">
+                        <i class="fas fa-plane" style="font-size: 50px; color: white; transform: rotate(-45deg);"></i>
+                    </div>
+                    <div style="font-family:'Montserrat',sans-serif;font-size:2.5rem;font-weight:800;background: linear-gradient(90deg, #fff, #00d4ff, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 4px;">
+                        AVIA<span style="color: #ff6b35;">VISION</span>
+                    </div>
+                    <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 8px; letter-spacing: 3px; text-transform: uppercase;">Air Cargo Education</div>
+                </div>
+
+                <!-- Divider -->
+                <div style="width: 200px; height: 2px; background: linear-gradient(90deg, transparent, #0066cc, transparent); margin: 30px auto;"></div>
+
+                <!-- Platform Info -->
+                <p style="color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 25px;">
+                    <i class="fas fa-copyright" style="color: var(--secondary-color);"></i> 2026 AviaVision - <span data-i18n="footer_text">Air Cargo Education Platform</span>
+                </p>
+
+                <!-- Developer Credit -->
+                <div style="display: inline-block; background: linear-gradient(135deg, rgba(0,102,204,0.2), rgba(255,107,53,0.2)); border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; padding: 15px 35px; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ff6b35, #ff8c5a); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-code" style="color: white; font-size: 18px;"></i>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;">Developed by</div>
+                            <div style="color: white; font-size: 1.2rem; font-weight: 700; font-family: 'Montserrat', sans-serif;">Gunesh Akbarli</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gmail Contact -->
+                <div style="margin-top: 30px; display: flex; justify-content: center;">
+                    <a href="mailto:aviavision.info@gmail.com" style="display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #EA4335, #FBBC05, #34A853, #4285F4); background-size: 300% 100%; padding: 12px 25px; border-radius: 50px; color: white; text-decoration: none; font-weight: 600; transition: all 0.3s; box-shadow: 0 5px 20px rgba(234,67,53,0.4); animation: gmailGradient 3s ease infinite;">
+                        <i class="fab fa-google" style="font-size: 20px;"></i>
+                        <span>aviavision.info@gmail.com</span>
+                    </a>
+                </div>
+
+                <style>
+                    @keyframes gmailGradient {
+                        0% { background-position: 0% 50%; }
+                        50% { background-position: 100% 50%; }
+                        100% { background-position: 0% 50%; }
+                    }
+                </style>
+            </div>
+
+            <!-- Bottom wave -->
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #0066cc, #00d4ff, #ff6b35, #0066cc); background-size: 300% 100%; animation: waveMove 5s linear infinite;"></div>
+        </footer>
+
+        <style>
+            @keyframes logoPulse {
+                0%, 100% { transform: scale(1); box-shadow: 0 10px 40px rgba(0,102,204,0.5); }
+                50% { transform: scale(1.05); box-shadow: 0 15px 50px rgba(0,102,204,0.7); }
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0) rotate(0deg); }
+                50% { transform: translateY(-20px) rotate(5deg); }
+            }
+            @keyframes waveMove {
+                0% { background-position: 0% 50%; }
+                100% { background-position: 300% 50%; }
+            }
+            footer a:hover {
+                background: var(--secondary-color) !important;
+                transform: translateY(-3px);
+            }
+        </style>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+
+        // ========================================
+        // FULL TRANSLATION DICTIONARIES
+        // ========================================
+        const translations = {
+            az: {
+                subtitle: "Hava yük daşımaları təhsil platforması",
+                nav_home: "Əsas", nav_types: "Yük növləri", nav_dgr: "DGR", nav_charts: "Cədvəllər", nav_sim: "Simulyator", nav_calc: "Kalkulyator",
+                hero_title: "Hava yük daşımaları üzrə peşəkar təhsil",
+                hero_subtitle: "Nəzəriyyədən praktikaya qədər yük aviadası daşımalarının bütün aspektlərini öyrənin",
+                hero_cta: "Təhsilə başla",
+                types_title: "Hava yük növləri", types_subtitle: "Ətraflı məlumat üçün kartı vurun",
+                cargo_general: "Adi yük", cargo_general_desc: "Standart yüklər",
+                cargo_perishable: "Tez xarab olan", cargo_perishable_desc: "Temperatur rejimi",
+                cargo_dangerous: "Təhlükəli yük", cargo_dangerous_desc: "IATA DGR qaydaları",
+                cargo_live: "Canlı heyvanlar", cargo_live_desc: "Ventilyasiya vacibdir",
+                cargo_valuable: "Dəyərli yük", cargo_valuable_desc: "Xüsusi təhlükəsizlik",
+                cargo_pharma: "Farmasevtika", cargo_pharma_desc: "Soyuq zəncir",
+                cargo_oversized: "Ölçüsü böyük", cargo_oversized_desc: "Yer sifarişi",
+                cargo_fragile: "Sınacaq yük", cargo_fragile_desc: "Xüsusi qablaşdırma",
+                info_general: "Adi yük: Standart qablaşdırma və etiketləmə tələbləri",
+                info_perishable: "Tez xarab olan: Temperatur rejimi vacibdir (donmuş: -18°C, soyudulmuş: 0-4°C)",
+                info_dangerous: "Təhlükəli yük: IATA DGR qaydalarına uyğun daşınmalıdır",
+                info_live: "Canlı heyvanlar: Ventilyasiya və qida təminatı vacibdir",
+                info_valuable: "Dəyərli yük: Xüsusi təhlükəsizlik tədbirləri tələb edir",
+                info_pharma: "Farmasevtika: Soyuq zəncir (2-8°C) vacibdir",
+                info_oversized: "Ölçüsü böyük: Əvvəlcədən yer sifarişi vacibdir",
+                info_fragile: "Sınacaq yük: Xüsusi qablaşdırma və diqqət tələb edir",
+                dgr_title: "IATA DGR təhlükəli yüklər sinifləri", dgr_subtitle: "Siniflərə görə təhlükəli yüklərin beynəlxalq daşınma qaydaları",
+                dgr_class: "Sinif", dgr_desc: "Təsvir", dgr_examples: "Nümunələr", dgr_notes: "Qeydlər",
+                class1_name: "Sinif 1", class1_desc: "Partlayıcı maddələr", class1_examples: "Feyerverklər, döyüş sursatı", class1_notes: "Yalnız yük reysləri",
+                class2_name: "Sinif 2.1", class2_desc: "Yanar qazlar", class2_examples: "Propan, butan", class2_notes: "Qapalı qablaşdırma",
+                class3_name: "Sinif 3", class3_desc: "Yanar mayelər", class3_examples: "Benzin, aseton", class3_notes: "Qapalı konteynerlər",
+                class4_name: "Sinif 4.1", class4_desc: "Yanar bərk maddələr", class4_examples: "Kükürd, maqnezium", class4_notes: "Sürtünmədən qoruma",
+                class5_name: "Sinif 5.1", class5_desc: "Oksidləşdirici maddələr", class5_examples: "Hidrogen peroksid", class5_notes: "Yanar materiallardan təcrid",
+                class6_name: "Sinif 6.1", class6_desc: "Zəhərli maddələr", class6_examples: "Pestisidlər, arsen", class6_notes: "Qapalı qablaşdırma",
+                class7_name: "Sinif 7", class7_desc: "Radioaktiv materiallar", class7_examples: "Uran, plutonium", class7_notes: "Qurğuşun qoruma",
+                class8_name: "Sinif 8", class8_desc: "Korroziv maddələr", class8_examples: "Sulfat turşusu", class8_notes: "Turşu davamlı qablaşdırma",
+                class9_name: "Sinif 9", class9_desc: "Digər təhlükəli maddələr", class9_examples: "Lithium batareyalar", class9_notes: "Xüsusi nişanlanma",
+                charts_title: "Boeing Yükləmə Cədvəlləri", charts_subtitle: "Real hava gəmisi yükləmə limitləri", height: "Hündürlük",
+                b747_info: "Maksimum çəki: 596 kg | Ölçülər: 10-162 cm hündürlük × 10-111 cm en",
+                b757_info: "Maksimum çəki: 736 kg", b767_info: "Maksimum çəki: 302 kg",
+                sim_title: "Yükləmə Mərkəzləşdirmə Simulyatoru", sim_subtitle: "Yükləri təyyarənin bölmələrinə bölün - limiti aşan zonalar qırmızı yanacaq",
+                zone_fwd: "FWD (Ön) - 5000 kg", zone_main: "MAIN (Əsas) - 8000 kg", zone_aft: "AFT (Arxa) - 5000 kg",
+                fwd_section: "Ön bölmə (Forward)", fwd_limit: "Limit: 5000 kq",
+                main_section: "Əsas bölmə (Main)", main_limit: "Limit: 8000 kq",
+                aft_section: "Arxa bölmə (Aft)", aft_limit: "Limit: 5000 kq",
+                results: "Nəticələr", total_weight: "Ümumi çəki", fwd_weight: "Ön bölmə", main_weight: "Əsas bölmə", aft_weight: "Arxa bölmə",
+                cg: "Ağırlıq mərkəzi", balance: "Balans", errors: "Xətalar:",
+                btn_calc: "Hesabla", btn_opt: "Optimallaşdır", btn_reset: "Sıfırla", optimized: "Optimallaşdırıldı!", reset_done: "Sıfırlandı",
+                awb_title: "Hava Yük Qəbzi (Air Waybill)", awb_subtitle: "IATA standartlarına uyğun aviayük qəbzi forması",
+                airline_codes: "IATA Aviaşirkət Kodları", awb_electronic: "Elektron Doldurma", awb_manual: "Əl ilə Doldurma",
+                awb_fill_title: "Aviayük Qəbzi Məlumatlarını Daxil Edin", label_airline: "Aviaşirkət", label_awb_number: "AWB Nömrəsi (8 rəqəm)",
+                label_shipper: "Göndərən", label_consignee: "Alıcı", label_origin: "Çıxış Hava Limanı", label_dest: "Təyinat Hava Limanı",
+                label_currency: "Valyuta", label_flight: "Reys / Tarix", cargo_info_title: "Yük Məlumatları",
+                label_pieces: "Miqdar (ədəd)", label_gross_weight: "Brutto çəki (kq)", label_length: "Uzunluq (sm)", label_width: "En (sm)",
+                label_height: "Hündürlük (sm)", label_vol_weight: "Həcm çəkisi (kq)", label_rate: "Tarif (AZN/kq)", label_description: "Yükün təsviri",
+                btn_calc_awb: "AWB-ni Hesabla və Doldur", manual_title: "Əl ilə Doldurma Rejimi",
+                manual_desc: "Aşağıdakı formada bütün sahələri əl ilə doldura bilərsiniz. Hesablama avtomatik aparılacaq.",
+                btn_confirm_mode: "Rejimi Təsdiqlə", manual_active: "Əl ilə doldurma rejimi aktivdir",
+                btn_clear: "Təmizlə", btn_auto: "Avto-Hesabla", btn_print: "Çap et / PDF",
+                awb_cleared: "AWB formu təmizləndi", awb_auto_filled: "AWB avto-dolduruldu!", awb_calculated: "AWB uğurla hesablandı və dolduruldu!",
+                val_airline: "Aviaşirkət seçin!", val_awb: "AWB nömrəsi 8 rəqəm olmalıdır!", val_airport: "Hava limanlarını seçin!",
+                val_same_airport: "Eyni hava limanı seçilə bilməz!", val_weight: "Brutto çəki daxil edin!", val_rate: "Tarif daxil edin!",
+                calc_title: "Daşıma xərcləri kalkulyatoru", calc_subtitle: "4 nəqliyyat növü ilə optimal marşrut seçin",
+                route: "Marşrut", origin: "İlkin nöqtə", destination: "Təyinat", cargo: "Yük", weight: "Kütlə (kq)", category: "Kateqoriya",
+                dimensions: "Ölçülər (sm)", length: "Uzunluq", width: "En", height_dim: "Hündürlük", volume: "Həcm",
+                btn_calc_all: "Bütün variantları hesabla", same_point: "Eyni nöqtə seçildi!",
+                city_baku: "Bakı", city_istanbul: "İstanbul", city_moscow: "Moskva", city_dubai: "Dubay", city_london: "London", city_frankfurt: "Frankfurt",
+                city_paris: "Paris", city_amsterdam: "Amsterdam", city_singapore: "Sinqapur", city_hongkong: "Honq Konq", city_shanghai: "Şanxay", city_newyork: "Nyu York",
+                cat_general: "Adi yük", cat_perishable: "Tez xarab", cat_dangerous: "Təhlükəli", cat_pharma: "Farmasevtika", cat_valuable: "Dəyərli",
+                cheapest: "Ən ucuz", fastest: "Ən sürətli", sea: "Dəniz", air: "Hava", rail: "Dəmiryolu", road: "Avtomobil", days: "gün",
+                footer_text: "Air Cargo Education Platform", lang_changed: "Dil dəyişdirildi: "
+            },
+            ru: {
+                subtitle: "Образовательная платформа авиаперевозок грузов",
+                nav_home: "Главная", nav_types: "Виды грузов", nav_dgr: "DGR", nav_charts: "Таблицы", nav_sim: "Симулятор", nav_calc: "Калькулятор",
+                hero_title: "Профессиональное обучение авиаперевозкам грузов",
+                hero_subtitle: "Изучите все аспекты грузовых авиаперевозок от теории до практики",
+                hero_cta: "Начать обучение",
+                types_title: "Виды авиационных грузов", types_subtitle: "Нажмите на карточку для подробной информации",
+                cargo_general: "Обычный груз", cargo_general_desc: "Стандартные грузы",
+                cargo_perishable: "Скоропортящийся", cargo_perishable_desc: "Температурный режим",
+                cargo_dangerous: "Опасный груз", cargo_dangerous_desc: "Правила IATA DGR",
+                cargo_live: "Животные", cargo_live_desc: "Вентиляция обязательна",
+                cargo_valuable: "Ценный груз", cargo_valuable_desc: "Особая безопасность",
+                cargo_pharma: "Фармацевтика", cargo_pharma_desc: "Холодовая цепь",
+                cargo_oversized: "Негабаритный", cargo_oversized_desc: "Предварительный заказ",
+                cargo_fragile: "Хрупкий груз", cargo_fragile_desc: "Особая упаковка",
+                info_general: "Обычный груз: Требования к стандартной упаковке и маркировке",
+                info_perishable: "Скоропортящийся: Важен температурный режим (замороженный: -18°C, охлажденный: 0-4°C)",
+                info_dangerous: "Опасный груз: Должен перевозиться в соответствии с правилами IATA DGR",
+                info_live: "Животные: Важны вентиляция и обеспечение пищей",
+                info_valuable: "Ценный груз: Требует особых мер безопасности",
+                info_pharma: "Фармацевтика: Важна холодовая цепь (2-8°C)",
+                info_oversized: "Негабаритный: Необходим предварительный заказ места",
+                info_fragile: "Хрупкий груз: Требует особой упаковки и внимания",
+                dgr_title: "Классы опасных грузов IATA DGR", dgr_subtitle: "Международные правила перевозки опасных грузов по классам",
+                dgr_class: "Класс", dgr_desc: "Описание", dgr_examples: "Примеры", dgr_notes: "Примечания",
+                class1_name: "Класс 1", class1_desc: "Взрывчатые вещества", class1_examples: "Фейерверки, боеприпасы", class1_notes: "Только грузовые рейсы",
+                class2_name: "Класс 2.1", class2_desc: "Легковоспламеняющиеся газы", class2_examples: "Пропан, бутан", class2_notes: "Закрытая упаковка",
+                class3_name: "Класс 3", class3_desc: "Легковоспламеняющиеся жидкости", class3_examples: "Бензин, ацетон", class3_notes: "Закрытые контейнеры",
+                class4_name: "Класс 4.1", class4_desc: "Легковоспламеняющиеся твердые вещества", class4_examples: "Сера, магний", class4_notes: "Защита от трения",
+                class5_name: "Класс 5.1", class5_desc: "Окисляющие вещества", class5_examples: "Перекись водорода", class5_notes: "Изоляция от горючих материалов",
+                class6_name: "Класс 6.1", class6_desc: "Ядовитые вещества", class6_examples: "Пестициды, мышьяк", class6_notes: "Закрытая упаковка",
+                class7_name: "Класс 7", class7_desc: "Радиоактивные материалы", class7_examples: "Уран, плутоний", class7_notes: "Свинцовая защита",
+                class8_name: "Класс 8", class8_desc: "Едкие вещества", class8_examples: "Серная кислота", class8_notes: "Кислотостойкая упаковка",
+                class9_name: "Класс 9", class9_desc: "Прочие опасные вещества", class9_examples: "Литиевые батареи", class9_notes: "Специальная маркировка",
+                charts_title: "Таблицы загрузки Boeing", charts_subtitle: "Реальные лимиты загрузки воздушных судов", height: "Высота",
+                b747_info: "Максимальный вес: 596 кг | Размеры: 10-162 см высота × 10-111 см ширина",
+                b757_info: "Максимальный вес: 736 кг", b767_info: "Максимальный вес: 302 кг",
+                sim_title: "Симулятор центровки загрузки", sim_subtitle: "Распределите грузы по отсекам самолета - зоны превышения лимита будут красными",
+                zone_fwd: "FWD (Нос) - 5000 кг", zone_main: "MAIN (Основной) - 8000 кг", zone_aft: "AFT (Корма) - 5000 кг",
+                fwd_section: "Носовой отсек (Forward)", fwd_limit: "Лимит: 5000 кг",
+                main_section: "Основной отсек (Main)", main_limit: "Лимит: 8000 кг",
+                aft_section: "Кормовой отсек (Aft)", aft_limit: "Лимит: 5000 кг",
+                results: "Результаты", total_weight: "Общий вес", fwd_weight: "Носовой отсек", main_weight: "Основной отсек", aft_weight: "Кормовой отсек",
+                cg: "Центр тяжести", balance: "Баланс", errors: "Ошибки:",
+                btn_calc: "Рассчитать", btn_opt: "Оптимизировать", btn_reset: "Сбросить", optimized: "Оптимизировано!", reset_done: "Сброшено",
+                awb_title: "Авиагрузовая накладная (Air Waybill)", awb_subtitle: "Форма авиагрузовой накладной по стандартам IATA",
+                airline_codes: "Коды IATA авиакомпаний", awb_electronic: "Электронное заполнение", awb_manual: "Ручное заполнение",
+                awb_fill_title: "Введите данные авианакладной", label_airline: "Авиакомпания", label_awb_number: "Номер AWB (8 цифр)",
+                label_shipper: "Отправитель", label_consignee: "Получатель", label_origin: "Аэропорт вылета", label_dest: "Аэропорт назначения",
+                label_currency: "Валюта", label_flight: "Рейс / Дата", cargo_info_title: "Информация о грузе",
+                label_pieces: "Количество (шт)", label_gross_weight: "Вес брутто (кг)", label_length: "Длина (см)", label_width: "Ширина (см)",
+                label_height: "Высота (см)", label_vol_weight: "Объемный вес (кг)", label_rate: "Тариф (USD/кг)", label_description: "Описание груза",
+                btn_calc_awb: "Рассчитать и заполнить AWB", manual_title: "Режим ручного заполнения",
+                manual_desc: "Вы можете заполнить все поля в форме вручную. Расчет будет выполнен автоматически.",
+                btn_confirm_mode: "Подтвердить режим", manual_active: "Режим ручного заполнения активен",
+                btn_clear: "Очистить", btn_auto: "Авто-заполнение", btn_print: "Печать / PDF",
+                awb_cleared: "Форма AWB очищена", awb_auto_filled: "AWB автоматически заполнена!", awb_calculated: "AWB успешно рассчитана и заполнена!",
+                val_airline: "Выберите авиакомпанию!", val_awb: "Номер AWB должен содержать 8 цифр!", val_airport: "Выберите аэропорты!",
+                val_same_airport: "Нельзя выбрать одинаковый аэропорт!", val_weight: "Введите вес брутто!", val_rate: "Введите тариф!",
+                calc_title: "Калькулятор стоимости перевозки", calc_subtitle: "Выберите оптимальный маршрут с 4 видами транспорта",
+                route: "Маршрут", origin: "Пункт отправления", destination: "Пункт назначения", cargo: "Груз", weight: "Масса (кг)", category: "Категория",
+                dimensions: "Размеры (см)", length: "Длина", width: "Ширина", height_dim: "Высота", volume: "Объем",
+                btn_calc_all: "Рассчитать все варианты", same_point: "Выбрана одинаковая точка!",
+                city_baku: "Баку", city_istanbul: "Стамбул", city_moscow: "Москва", city_dubai: "Дубай", city_london: "Лондон", city_frankfurt: "Франкфурт",
+                city_paris: "Париж", city_amsterdam: "Амстердам", city_singapore: "Сингапур", city_hongkong: "Гонконг", city_shanghai: "Шанхай", city_newyork: "Нью-Йорк",
+                cat_general: "Обычный груз", cat_perishable: "Скоропорт", cat_dangerous: "Опасный", cat_pharma: "Фармацевтика", cat_valuable: "Ценный",
+                cheapest: "Самый дешевый", fastest: "Самый быстрый", sea: "Море", air: "Авиа", rail: "Ж/Д", road: "Авто", days: "дн",
+                footer_text: "Образовательная платформа авиаперевозок грузов", lang_changed: "Язык изменен: "
+            },
+            en: {
+                subtitle: "Air Cargo Education Platform",
+                nav_home: "Home", nav_types: "Cargo Types", nav_dgr: "DGR", nav_charts: "Charts", nav_sim: "Simulator", nav_calc: "Calculator",
+                hero_title: "Professional Air Cargo Training",
+                hero_subtitle: "Learn all aspects of air cargo transportation from theory to practice",
+                hero_cta: "Start Learning",
+                types_title: "Air Cargo Types", types_subtitle: "Click on a card for detailed information",
+                cargo_general: "General Cargo", cargo_general_desc: "Standard shipments",
+                cargo_perishable: "Perishable", cargo_perishable_desc: "Temperature control",
+                cargo_dangerous: "Dangerous Goods", cargo_dangerous_desc: "IATA DGR regulations",
+                cargo_live: "Live Animals", cargo_live_desc: "Ventilation required",
+                cargo_valuable: "Valuable Cargo", cargo_valuable_desc: "Special security",
+                cargo_pharma: "Pharmaceuticals", cargo_pharma_desc: "Cold chain",
+                cargo_oversized: "Oversized", cargo_oversized_desc: "Advance booking",
+                cargo_fragile: "Fragile", cargo_fragile_desc: "Special packaging",
+                info_general: "General Cargo: Standard packaging and labeling requirements",
+                info_perishable: "Perishable: Temperature control is essential (frozen: -18°C, chilled: 0-4°C)",
+                info_dangerous: "Dangerous Goods: Must be transported according to IATA DGR regulations",
+                info_live: "Live Animals: Ventilation and food supply are essential",
+                info_valuable: "Valuable Cargo: Requires special security measures",
+                info_pharma: "Pharmaceuticals: Cold chain (2-8°C) is essential",
+                info_oversized: "Oversized: Advance booking is required",
+                info_fragile: "Fragile Cargo: Requires special packaging and care",
+                dgr_title: "IATA DGR Dangerous Goods Classes", dgr_subtitle: "International dangerous goods transportation rules by class",
+                dgr_class: "Class", dgr_desc: "Description", dgr_examples: "Examples", dgr_notes: "Notes",
+                class1_name: "Class 1", class1_desc: "Explosives", class1_examples: "Fireworks, ammunition", class1_notes: "Cargo flights only",
+                class2_name: "Class 2.1", class2_desc: "Flammable Gases", class2_examples: "Propane, butane", class2_notes: "Closed packaging",
+                class3_name: "Class 3", class3_desc: "Flammable Liquids", class3_examples: "Gasoline, acetone", class3_notes: "Closed containers",
+                class4_name: "Class 4.1", class4_desc: "Flammable Solids", class4_examples: "Sulfur, magnesium", class4_notes: "Protection from friction",
+                class5_name: "Class 5.1", class5_desc: "Oxidizing Substances", class5_examples: "Hydrogen peroxide", class5_notes: "Isolation from flammables",
+                class6_name: "Class 6.1", class6_desc: "Toxic Substances", class6_examples: "Pesticides, arsenic", class6_notes: "Closed packaging",
+                class7_name: "Class 7", class7_desc: "Radioactive Materials", class7_examples: "Uranium, plutonium", class7_notes: "Lead shielding",
+                class8_name: "Class 8", class8_desc: "Corrosive Substances", class8_examples: "Sulfuric acid", class8_notes: "Acid-resistant packaging",
+                class9_name: "Class 9", class9_desc: "Miscellaneous Dangerous Goods", class9_examples: "Lithium batteries", class9_notes: "Special labeling",
+                charts_title: "Boeing Loading Charts", charts_subtitle: "Real aircraft loading limits", height: "Height",
+                b747_info: "Maximum weight: 596 kg | Dimensions: 10-162 cm height × 10-111 cm width",
+                b757_info: "Maximum weight: 736 kg", b767_info: "Maximum weight: 302 kg",
+                sim_title: "Loading Center of Gravity Simulator", sim_subtitle: "Distribute cargo into aircraft compartments - exceeding zones will turn red",
+                zone_fwd: "FWD (Forward) - 5000 kg", zone_main: "MAIN - 8000 kg", zone_aft: "AFT (Aft) - 5000 kg",
+                fwd_section: "Forward Compartment", fwd_limit: "Limit: 5000 kg",
+                main_section: "Main Compartment", main_limit: "Limit: 8000 kg",
+                aft_section: "Aft Compartment", aft_limit: "Limit: 5000 kg",
+                results: "Results", total_weight: "Total Weight", fwd_weight: "Forward", main_weight: "Main", aft_weight: "Aft",
+                cg: "Center of Gravity", balance: "Balance", errors: "Errors:",
+                btn_calc: "Calculate", btn_opt: "Optimize", btn_reset: "Reset", optimized: "Optimized!", reset_done: "Reset",
+                awb_title: "Air Waybill (AWB)", awb_subtitle: "Air cargo waybill form according to IATA standards",
+                airline_codes: "IATA Airline Codes", awb_electronic: "Electronic Fill", awb_manual: "Manual Fill",
+                awb_fill_title: "Enter Air Waybill Information", label_airline: "Airline", label_awb_number: "AWB Number (8 digits)",
+                label_shipper: "Shipper", label_consignee: "Consignee", label_origin: "Origin Airport", label_dest: "Destination Airport",
+                label_currency: "Currency", label_flight: "Flight / Date", cargo_info_title: "Cargo Information",
+                label_pieces: "Pieces", label_gross_weight: "Gross Weight (kg)", label_length: "Length (cm)", label_width: "Width (cm)",
+                label_height: "Height (cm)", label_vol_weight: "Volume Weight (kg)", label_rate: "Rate (USD/kg)", label_description: "Cargo Description",
+                btn_calc_awb: "Calculate & Fill AWB", manual_title: "Manual Fill Mode",
+                manual_desc: "You can fill all fields in the form manually. Calculation will be performed automatically.",
+                btn_confirm_mode: "Confirm Mode", manual_active: "Manual fill mode is active",
+                btn_clear: "Clear", btn_auto: "Auto-Fill", btn_print: "Print / PDF",
+                awb_cleared: "AWB form cleared", awb_auto_filled: "AWB auto-filled!", awb_calculated: "AWB successfully calculated and filled!",
+                val_airline: "Select airline!", val_awb: "AWB number must be 8 digits!", val_airport: "Select airports!",
+                val_same_airport: "Cannot select same airport!", val_weight: "Enter gross weight!", val_rate: "Enter rate!",
+                calc_title: "Transportation Cost Calculator", calc_subtitle: "Choose optimal route with 4 transport modes",
+                route: "Route", origin: "Origin", destination: "Destination", cargo: "Cargo", weight: "Weight (kg)", category: "Category",
+                dimensions: "Dimensions (cm)", length: "Length", width: "Width", height_dim: "Height", volume: "Volume",
+                btn_calc_all: "Calculate All Options", same_point: "Same point selected!",
+                city_baku: "Baku", city_istanbul: "Istanbul", city_moscow: "Moscow", city_dubai: "Dubai", city_london: "London", city_frankfurt: "Frankfurt",
+                city_paris: "Paris", city_amsterdam: "Amsterdam", city_singapore: "Singapore", city_hongkong: "Hong Kong", city_shanghai: "Shanghai", city_newyork: "New York",
+                cat_general: "General Cargo", cat_perishable: "Perishable", cat_dangerous: "Dangerous", cat_pharma: "Pharmaceutical", cat_valuable: "Valuable",
+                cheapest: "Cheapest", fastest: "Fastest", sea: "Sea", air: "Air", rail: "Rail", road: "Road", days: "days",
+                footer_text: "Air Cargo Education Platform", lang_changed: "Language changed: "
+            }
+        };
+
+        // Current language
+        let currentLang = 'az';
+
+        // ========================================
+        // OPENING ANIMATION
+        // ========================================
+        setTimeout(() => {
+            document.getElementById('opening-animation').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('opening-animation').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            }, 800);
+        }, 3000);
+
+        // ========================================
+        // LANGUAGE SWITCHER - DROPDOWN
+        // ========================================
+        function toggleLangDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('langDropdown');
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            
+            // Update current language text
+            const langNames = { az: 'AZE', ru: 'RUS', en: 'ENG' };
+            document.getElementById('currentLangText').textContent = langNames[lang];
+            
+            // Update active option in dropdown
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.dataset.lang === lang) {
+                    opt.classList.add('active');
+                }
+            });
+            
+            // Close dropdown
+            document.getElementById('langDropdown').classList.remove('active');
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+            
+            // Show toast
+            showToast(translations[lang].lang_changed + lang.toUpperCase());
+        }
+
+        // ========================================
+        // TOAST
+        // ========================================
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ========================================
+        // CARGO INFO
+        // ========================================
+        function showCargoInfo(type) {
+            const key = 'info_' + type;
+            const msg = translations[currentLang][key] || 'No information';
+            showToast(msg);
+        }
+
+        // ========================================
+        // CHARTS
+        // ========================================
+        function showChart(id) {
+            document.querySelectorAll('.chart-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('chart-' + id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ========================================
+        // LOADING SIMULATION
+        // ========================================
+        const posLimits = { 1: 1250, 2: 1250, 3: 1250, 4: 1250, 5: 2000, 6: 2000, 7: 2000, 8: 2000, 9: 1667, 10: 1667, 11: 1666 };
+        
+        function updateZoneStatus(elementId, isError, label) {
+            const el = document.getElementById(elementId);
+            if (isError) {
+                el.style.border = '4px solid #e74c3c';
+                el.style.background = 'rgba(231, 76, 60, 0.3)';
+                el.style.boxShadow = '0 0 30px rgba(231, 76, 60, 0.8)';
+                el.querySelector('span').style.color = '#e74c3c';
+                el.querySelector('span').innerHTML = label + ' ✗';
+            } else {
+                el.style.border = '4px solid #27ae60';
+                el.style.background = 'rgba(39, 174, 96, 0.2)';
+                el.style.boxShadow = '0 0 20px rgba(39, 174, 96, 0.5)';
+                el.querySelector('span').style.color = '#27ae60';
+                el.querySelector('span').innerHTML = label + ' ✓';
+            }
+        }
+
+        function updateSim() {
+            let fwd = 0, main = 0, aft = 0, err = false, errs = [];
+            let fwdErr = false, mainErr = false, aftErr = false;
+            
+            for (let i = 1; i <= 4; i++) {
+                const v = (parseFloat(document.getElementById('f-' + i + 'l').value) || 0) + (parseFloat(document.getElementById('f-' + i + 'r').value) || 0);
+                fwd += v; document.getElementById('zw-' + i).textContent = v;
+                const z = document.getElementById('zone-' + i);
+                z.classList.remove('error', 'ok');
+                if (v > posLimits[i]) { 
+                    z.classList.add('error'); 
+                    err = true; 
+                    fwdErr = true;
+                    errs.push('FWD ' + i + ': ' + v + 'kg > ' + posLimits[i] + 'kg'); 
+                } else if (v > 0) {
+                    z.classList.add('ok');
+                }
+            }
+            for (let i = 5; i <= 8; i++) {
+                const v = (parseFloat(document.getElementById('m-' + i + 'l').value) || 0) + (parseFloat(document.getElementById('m-' + i + 'r').value) || 0);
+                main += v; document.getElementById('zw-' + i).textContent = v;
+                const z = document.getElementById('zone-' + i);
+                z.classList.remove('error', 'ok');
+                if (v > posLimits[i]) { 
+                    z.classList.add('error'); 
+                    err = true; 
+                    mainErr = true;
+                    errs.push('MAIN ' + i + ': ' + v + 'kg > ' + posLimits[i] + 'kg'); 
+                } else if (v > 0) {
+                    z.classList.add('ok');
+                }
+            }
+            for (let i = 9; i <= 11; i++) {
+                const v = (parseFloat(document.getElementById('a-' + i + 'l').value) || 0) + (parseFloat(document.getElementById('a-' + i + 'r').value) || 0);
+                aft += v; document.getElementById('zw-' + i).textContent = v;
+                const z = document.getElementById('zone-' + i);
+                z.classList.remove('error', 'ok');
+                if (v > posLimits[i]) { 
+                    z.classList.add('error'); 
+                    err = true; 
+                    aftErr = true;
+                    errs.push('AFT ' + i + ': ' + v + 'kg > ' + posLimits[i] + 'kg'); 
+                } else if (v > 0) {
+                    z.classList.add('ok');
+                }
+            }
+            const tot = fwd + main + aft;
+            
+            // Update red/green status indicators on aircraft image
+            updateZoneStatus('status-fwd', fwdErr, 'FWD');
+            updateZoneStatus('status-main', mainErr, 'MAIN');
+            updateZoneStatus('status-aft', aftErr, 'AFT');
+            
+            const kg = currentLang === 'en' ? 'kg' : (currentLang === 'ru' ? 'кг' : 'kq');
+            document.getElementById('rv-total').textContent = tot + ' ' + kg;
+            document.getElementById('rv-fwd').textContent = fwd + ' ' + kg;
+            document.getElementById('rv-main').textContent = main + ' ' + kg;
+            document.getElementById('rv-aft').textContent = aft + ' ' + kg;
+            document.getElementById('rb-bal').className = 'result-box ' + (err ? 'error' : 'ok');
+            document.getElementById('rv-bal').textContent = err ? 'ERROR' : 'OK';
+            const el = document.getElementById('err-log');
+            if (err) { el.classList.add('active'); document.getElementById('err-list').innerHTML = errs.map(e => '<li>' + e + '</li>').join(''); }
+            else el.classList.remove('active');
+        }
+
+        function optSim() {
+            for (let i = 1; i <= 4; i++) { document.getElementById('f-' + i + 'l').value = 600; document.getElementById('f-' + i + 'r').value = 600; }
+            for (let i = 5; i <= 8; i++) { document.getElementById('m-' + i + 'l').value = 1000; document.getElementById('m-' + i + 'r').value = 1000; }
+            for (let i = 9; i <= 11; i++) { document.getElementById('a-' + i + 'l').value = 800; document.getElementById('a-' + i + 'r').value = 800; }
+            updateSim(); showToast(translations[currentLang].optimized);
+        }
+
+        function clrSim() {
+            for (let i = 1; i <= 4; i++) { document.getElementById('f-' + i + 'l').value = ''; document.getElementById('f-' + i + 'r').value = ''; }
+            for (let i = 5; i <= 8; i++) { document.getElementById('m-' + i + 'l').value = ''; document.getElementById('m-' + i + 'r').value = ''; }
+            for (let i = 9; i <= 11; i++) { document.getElementById('a-' + i + 'l').value = ''; document.getElementById('a-' + i + 'r').value = ''; }
+            for (let i = 1; i <= 11; i++) { 
+                document.getElementById('zw-' + i).textContent = '0'; 
+                document.getElementById('zone-' + i).classList.remove('error', 'ok'); 
+            }
+            updateSim(); 
+            showToast(translations[currentLang].reset_done);
+        }
+
+        // ========================================
+        // AWB TAB SWITCHING
+        // ========================================
+        function switchAwbTab(mode) {
+            document.querySelectorAll('.awb-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.awb-tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('awb-' + mode).classList.add('active');
+        }
+
+        // ========================================
+        // AWB FUNCTIONS
+        // ========================================
+        const airlineData = {
+            '771': { name: 'AZAL Azerbaijan Airlines', iata: 'J2' },
+            '235': { name: 'Turkish Airlines', iata: 'TK' },
+            '176': { name: 'Emirates', iata: 'EK' },
+            '020': { name: 'Lufthansa Cargo', iata: 'LH' },
+            '125': { name: 'British Airways', iata: 'BA' },
+            '618': { name: 'Singapore Airlines', iata: 'SQ' },
+            '157': { name: 'Qatar Airways', iata: 'QR' },
+            '074': { name: 'KLM Cargo', iata: 'KL' },
+            '057': { name: 'Air France', iata: 'AF' },
+            '555': { name: 'Aeroflot', iata: 'SU' }
+        };
+
+        function calcVolumeWeight() {
+            const l = parseFloat(document.getElementById('input-length').value) || 0;
+            const w = parseFloat(document.getElementById('input-width').value) || 0;
+            const h = parseFloat(document.getElementById('input-height').value) || 0;
+            const volWeight = (l * w * h) / 6000;
+            document.getElementById('input-vol-weight').value = volWeight.toFixed(2);
+        }
+
+        function calculateAWB() {
+            const t = translations[currentLang];
+            
+            const airlineCode = document.getElementById('input-airline').value;
+            const awbNumber = document.getElementById('input-awb-number').value;
+            const shipper = document.getElementById('input-shipper').value;
+            const consignee = document.getElementById('input-consignee').value;
+            const origin = document.getElementById('input-origin').value;
+            const dest = document.getElementById('input-dest').value;
+            const currency = document.getElementById('input-currency').value;
+            const flight = document.getElementById('input-flight').value;
+            const pieces = document.getElementById('input-pieces').value;
+            const grossWeight = parseFloat(document.getElementById('input-gross-weight').value) || 0;
+            const volWeight = parseFloat(document.getElementById('input-vol-weight').value) || 0;
+            const rate = parseFloat(document.getElementById('input-rate').value) || 0;
+            const description = document.getElementById('input-description').value || 'GENERAL CARGO';
+
+            if (!airlineCode) { showToast(t.val_airline, 'error'); return; }
+            if (!awbNumber || awbNumber.length !== 8) { showToast(t.val_awb, 'error'); return; }
+            if (!origin || !dest) { showToast(t.val_airport, 'error'); return; }
+            if (origin === dest) { showToast(t.val_same_airport, 'error'); return; }
+            if (grossWeight <= 0) { showToast(t.val_weight, 'error'); return; }
+            if (rate <= 0) { showToast(t.val_rate, 'error'); return; }
+
+            const chargeableWeight = Math.max(grossWeight, volWeight);
+            const total = chargeableWeight * rate;
+            const airline = airlineData[airlineCode];
+
+            document.getElementById('awb-display-number').textContent = airlineCode + '-' + awbNumber;
+            document.getElementById('awb-shipper').value = shipper;
+            document.getElementById('awb-consignee').value = consignee;
+            document.getElementById('awb-to1').value = dest;
+            document.getElementById('awb-by1').value = airline.iata;
+            document.getElementById('awb-dep-airport').value = origin;
+            document.getElementById('awb-dest-airport').value = dest;
+            document.getElementById('awb-currency').value = currency;
+            document.getElementById('awb-flight-date').value = flight || airline.iata + '001 / ' + new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }).toUpperCase();
+            document.getElementById('awb-pcs1').value = pieces;
+            document.getElementById('awb-gw1').value = grossWeight.toFixed(2);
+            document.getElementById('awb-cw1').value = chargeableWeight.toFixed(2);
+            document.getElementById('awb-rate1').value = rate.toFixed(2);
+            document.getElementById('awb-total1').value = total.toFixed(2);
+            document.getElementById('awb-nature').value = description;
+            document.getElementById('awb-prepaid').value = total.toFixed(2);
+            document.getElementById('awb-wc').value = total.toFixed(2);
+            document.getElementById('awb-total-prepaid').value = total.toFixed(2);
+
+            showToast(t.awb_calculated);
+            document.querySelector('.awb-form-wrapper').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function autoCalculateAWB() {
+            const t = translations[currentLang];
+            const airlineCodes = Object.keys(airlineData);
+            const randomAirline = airlineCodes[Math.floor(Math.random() * airlineCodes.length)];
+            const airports = ['GYD', 'IST', 'SVO', 'DXB', 'FRA', 'LHR', 'SIN'];
+            const randomOrigin = airports[Math.floor(Math.random() * airports.length)];
+            let randomDest = airports[Math.floor(Math.random() * airports.length)];
+            while (randomDest === randomOrigin) {
+                randomDest = airports[Math.floor(Math.random() * airports.length)];
+            }
+            
+            document.getElementById('input-airline').value = randomAirline;
+            document.getElementById('input-awb-number').value = Math.floor(Math.random() * 90000000 + 10000000).toString();
+            document.getElementById('input-shipper').value = 'ABC Trading LLC\n123 Business Street\nBaku, Azerbaijan';
+            document.getElementById('input-consignee').value = 'XYZ Import Ltd\n456 Commerce Ave\nIstanbul, Turkey';
+            document.getElementById('input-origin').value = randomOrigin;
+            document.getElementById('input-dest').value = randomDest;
+            document.getElementById('input-flight').value = airlineData[randomAirline].iata + Math.floor(Math.random() * 900 + 100) + ' / ' + new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }).toUpperCase();
+            document.getElementById('input-pieces').value = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('input-gross-weight').value = (Math.random() * 500 + 50).toFixed(2);
+            document.getElementById('input-length').value = Math.floor(Math.random() * 50 + 50);
+            document.getElementById('input-width').value = Math.floor(Math.random() * 40 + 40);
+            document.getElementById('input-height').value = Math.floor(Math.random() * 40 + 30);
+            calcVolumeWeight();
+            document.getElementById('input-rate').value = (Math.random() * 5 + 2).toFixed(2);
+            document.getElementById('input-description').value = 'GENERAL CARGO';
+            
+            calculateAWB();
+            showToast(t.awb_auto_filled);
+        }
+
+        function clearAWBForm() {
+            const t = translations[currentLang];
+            const inputs = document.querySelectorAll('.awb-official input, .awb-official textarea');
+            inputs.forEach(inp => {
+                if (!inp.readOnly && inp.type !== 'checkbox') {
+                    inp.value = '';
+                }
+            });
+            
+            document.getElementById('awb-wt-pp').checked = true;
+            document.getElementById('awb-wt-cl').checked = false;
+            document.getElementById('awb-oth-pp').checked = true;
+            document.getElementById('awb-oth-cl').checked = false;
+            document.getElementById('awb-chgs').value = 'PP';
+            document.getElementById('awb-dv-carriage').value = 'NVD';
+            document.getElementById('awb-dv-customs').value = 'NCV';
+            document.getElementById('awb-insurance').value = 'XXX';
+            document.getElementById('awb-unit1').value = 'K';
+            document.getElementById('awb-class1').value = 'Q';
+            document.getElementById('awb-display-number').textContent = '771-________';
+            
+            document.getElementById('input-airline').value = '';
+            document.getElementById('input-awb-number').value = '';
+            document.getElementById('input-shipper').value = '';
+            document.getElementById('input-consignee').value = '';
+            document.getElementById('input-origin').value = '';
+            document.getElementById('input-dest').value = '';
+            document.getElementById('input-flight').value = '';
+            document.getElementById('input-pieces').value = '1';
+            document.getElementById('input-gross-weight').value = '';
+            document.getElementById('input-length').value = '';
+            document.getElementById('input-width').value = '';
+            document.getElementById('input-height').value = '';
+            document.getElementById('input-vol-weight').value = '';
+            document.getElementById('input-rate').value = '';
+            document.getElementById('input-description').value = '';
+            
+            showToast(t.awb_cleared);
+        }
+
+        function printAWB() {
+            window.print();
+        }
+
+        // ========================================
+        // CALCULATOR
+        // ========================================
+        const distances = {
+            'baku-istanbul': 1750, 'baku-moscow': 1920, 'baku-dubai': 1850, 'baku-london': 3950, 'baku-frankfurt': 3350,
+            'baku-paris': 3800, 'baku-amsterdam': 3600, 'baku-singapore': 7500, 'baku-hongkong': 6200, 'baku-shanghai': 6000, 'baku-newyork': 9200,
+            'istanbul-baku': 1750, 'istanbul-moscow': 1750, 'istanbul-dubai': 3000, 'istanbul-london': 2500, 'istanbul-frankfurt': 1850,
+            'istanbul-paris': 2250, 'istanbul-amsterdam': 2200, 'istanbul-singapore': 8600, 'istanbul-hongkong': 8000, 'istanbul-shanghai': 7800, 'istanbul-newyork': 8000,
+            'moscow-baku': 1920, 'moscow-istanbul': 1750, 'moscow-dubai': 3700, 'moscow-london': 2500, 'moscow-frankfurt': 2000,
+            'moscow-paris': 2500, 'moscow-amsterdam': 2150, 'moscow-singapore': 8400, 'moscow-hongkong': 7100, 'moscow-shanghai': 6800, 'moscow-newyork': 7500,
+            'dubai-baku': 1850, 'dubai-istanbul': 3000, 'dubai-moscow': 3700, 'dubai-london': 5500, 'dubai-frankfurt': 4800,
+            'dubai-paris': 5200, 'dubai-amsterdam': 5100, 'dubai-singapore': 5800, 'dubai-hongkong': 5000, 'dubai-shanghai': 6400, 'dubai-newyork': 11000,
+            'london-baku': 3950, 'london-istanbul': 2500, 'london-moscow': 2500, 'london-dubai': 5500, 'london-frankfurt': 750,
+            'london-paris': 340, 'london-amsterdam': 360, 'london-singapore': 10800, 'london-hongkong': 9600, 'london-shanghai': 9200, 'london-newyork': 5500,
+            'frankfurt-baku': 3350, 'frankfurt-istanbul': 1850, 'frankfurt-moscow': 2000, 'frankfurt-dubai': 4800, 'frankfurt-london': 750,
+            'frankfurt-paris': 480, 'frankfurt-amsterdam': 370, 'frankfurt-singapore': 10200, 'frankfurt-hongkong': 9100, 'frankfurt-shanghai': 8800, 'frankfurt-newyork': 6200,
+            'paris-baku': 3800, 'paris-istanbul': 2250, 'paris-moscow': 2500, 'paris-dubai': 5200, 'paris-london': 340,
+            'paris-frankfurt': 480, 'paris-amsterdam': 430, 'paris-singapore': 10700, 'paris-hongkong': 9600, 'paris-shanghai': 9300, 'paris-newyork': 5800,
+            'amsterdam-baku': 3600, 'amsterdam-istanbul': 2200, 'amsterdam-moscow': 2150, 'amsterdam-dubai': 5100, 'amsterdam-london': 360,
+            'amsterdam-frankfurt': 370, 'amsterdam-paris': 430, 'amsterdam-singapore': 10500, 'amsterdam-hongkong': 9200, 'amsterdam-shanghai': 8900, 'amsterdam-newyork': 5800,
+            'singapore-baku': 7500, 'singapore-istanbul': 8600, 'singapore-moscow': 8400, 'singapore-dubai': 5800, 'singapore-london': 10800,
+            'singapore-frankfurt': 10200, 'singapore-paris': 10700, 'singapore-amsterdam': 10500, 'singapore-hongkong': 2600, 'singapore-shanghai': 3800, 'singapore-newyork': 15300,
+            'hongkong-baku': 6200, 'hongkong-istanbul': 8000, 'hongkong-moscow': 7100, 'hongkong-dubai': 5000, 'hongkong-london': 9600,
+            'hongkong-frankfurt': 9100, 'hongkong-paris': 9600, 'hongkong-amsterdam': 9200, 'hongkong-singapore': 2600, 'hongkong-shanghai': 1200, 'hongkong-newyork': 12900,
+            'shanghai-baku': 6000, 'shanghai-istanbul': 7800, 'shanghai-moscow': 6800, 'shanghai-dubai': 6400, 'shanghai-london': 9200,
+            'shanghai-frankfurt': 8800, 'shanghai-paris': 9300, 'shanghai-amsterdam': 8900, 'shanghai-singapore': 3800, 'shanghai-hongkong': 1200, 'shanghai-newyork': 11800,
+            'newyork-baku': 9200, 'newyork-istanbul': 8000, 'newyork-moscow': 7500, 'newyork-dubai': 11000, 'newyork-london': 5500,
+            'newyork-frankfurt': 6200, 'newyork-paris': 5800, 'newyork-amsterdam': 5800, 'newyork-singapore': 15300, 'newyork-hongkong': 12900, 'newyork-shanghai': 11800
+        };
+
+        // Tariflər (USD per kg)
+        const rates = {
+            air: { base: 2.5, min: 50 },
+            sea: { base: 0.15, min: 100 },
+            rail: { base: 0.45, min: 150 },
+            road: { base: 0.65, min: 80 }
+        };
+
+        // Yük növü əmsalları
+        const cargoMultipliers = { 
+            general: 1.0, 
+            perishable: 1.4, 
+            dangerous: 2.0,
+            pharma: 1.6,
+            valuable: 1.8
+        };
+
+        // Sürət (km/gün)
+        const speeds = {
+            air: 800,
+            sea: 400,
+            rail: 500,
+            road: 600
+        };
+
+        // Hesablama inputları dəyişəndə həcm və chargeable weight yenilə
+        ['calc-len', 'calc-wid', 'calc-hgt', 'calc-weight'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', updateCalcPreview);
+        });
+
+        function updateCalcPreview() {
+            const weight = parseFloat(document.getElementById('calc-weight').value) || 0;
+            const l = parseFloat(document.getElementById('calc-len').value) || 0;
+            const w = parseFloat(document.getElementById('calc-wid').value) || 0;
+            const h = parseFloat(document.getElementById('calc-hgt').value) || 0;
+            
+            const vol = (l * w * h) / 1000000;
+            const volWeight = (l * w * h) / 6000; // IATA həcm çəkisi formulu
+            const chargeableWeight = Math.max(weight, volWeight);
+            
+            document.getElementById('calc-vol').textContent = vol.toFixed(3) + ' m³';
+            document.getElementById('calc-vol-weight').textContent = volWeight.toFixed(1) + ' kq';
+            document.getElementById('calc-chargeable').textContent = chargeableWeight.toFixed(1) + ' kq';
+        }
+
+        // Currency conversion rate (USD to AZN)
+        const USD_TO_AZN = 1.70;
+
+        function updateCurrencyDisplay() {
+            const currency = document.getElementById('calc-currency').value;
+            const currencySymbol = currency === 'AZN' ? '₼' : '$';
+            showToast('Valyuta dəyişdirildi: ' + currencySymbol);
+        }
+
+        function convertCurrency(amount, toCurrency) {
+            if (toCurrency === 'AZN') {
+                return amount * USD_TO_AZN;
+            }
+            return amount;
+        }
+
+        function formatCurrency(amount, currency) {
+            const symbol = currency === 'AZN' ? '₼' : '$';
+            return symbol + amount.toLocaleString();
+        }
+
+        function calcTransport() {
+            const origin = document.getElementById('calc-origin').value;
+            const dest = document.getElementById('calc-dest').value;
+            const grossWeight = parseFloat(document.getElementById('calc-weight').value) || 0;
+            const cargoType = document.getElementById('calc-cargo').value;
+            const currency = document.getElementById('calc-currency').value;
+            const currencySymbol = currency === 'AZN' ? '₼' : '$';
+            const conversionRate = currency === 'AZN' ? USD_TO_AZN : 1;
+            const l = parseFloat(document.getElementById('calc-len').value) || 0;
+            const w = parseFloat(document.getElementById('calc-wid').value) || 0;
+            const h = parseFloat(document.getElementById('calc-hgt').value) || 0;
+            
+            if (origin === dest) {
+                showToast(translations[currentLang].same_point, 'error');
+                return;
+            }
+            
+            // Həcm və chargeable weight hesabla
+            const vol = (l * w * h) / 1000000;
+            const volWeight = (l * w * h) / 6000;
+            const chargeableWeight = Math.max(grossWeight, volWeight);
+            
+            // Məsafəni al
+            const dist = distances[origin + '-' + dest];
+            if (!dist) {
+                showToast('Bu marşrut üçün məlumat yoxdur', 'error');
+                return;
+            }
+            
+            // Yük növü əmsalı
+            const mult = cargoMultipliers[cargoType] || 1;
+            
+            // Hər nəqliyyat növü üçün hesabla
+            const modes = [
+                { key: 'air', name: 'Hava yolu (Air)', nameEn: 'Air Freight', icon: '✈️', color: '#0066cc', bgColor: '#e3f2fd' },
+                { key: 'sea', name: 'Dəniz yolu (Sea)', nameEn: 'Sea Freight', icon: '🚢', color: '#00897b', bgColor: '#e0f2f1' },
+                { key: 'rail', name: 'Dəmiryolu (Rail)', nameEn: 'Rail Freight', icon: '🚂', color: '#7b1fa2', bgColor: '#f3e5f5' },
+                { key: 'road', name: 'Avtomobil (Road)', nameEn: 'Road Freight', icon: '🚛', color: '#f57c00', bgColor: '#fff3e0' }
+            ];
+            
+            const results = modes.map(mode => {
+                const rate = rates[mode.key].base * mult;
+                const minCharge = rates[mode.key].min;
+                let freightCost = chargeableWeight * rate;
+                if (freightCost < minCharge) freightCost = minCharge;
+                
+                // Əlavə xərclər
+                const fuelSurcharge = freightCost * 0.15;
+                const securityCharge = mode.key === 'air' ? chargeableWeight * 0.10 : 0;
+                const handlingCharge = mode.key === 'sea' ? 150 : 50;
+                const customsCharge = 80;
+                
+                const totalCost = freightCost + fuelSurcharge + securityCharge + handlingCharge + customsCharge;
+                const days = Math.ceil(dist / speeds[mode.key] + (mode.key === 'sea' ? 3 : mode.key === 'rail' ? 2 : 1));
+                
+                return {
+                    ...mode,
+                    freightCost,
+                    fuelSurcharge,
+                    securityCharge,
+                    handlingCharge,
+                    customsCharge,
+                    totalCost: Math.round(totalCost),
+                    days,
+                    rate
+                };
+            });
+            
+            const minCost = Math.min(...results.map(r => r.totalCost));
+            const minDays = Math.min(...results.map(r => r.days));
+            
+            const t = translations[currentLang];
+            
+            // Summary banner
+            const summaryHtml = `
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">📍 ${origin.toUpperCase()} → ${dest.toUpperCase()} | 📦 ${chargeableWeight.toFixed(1)} kq</div>
+                        <div style="font-size: 24px; font-weight: 700;">4 nəqliyyat variantı müqayisə edildi</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; opacity: 0.8;">Ən sərfəli variant</div>
+                        <div style="font-size: 28px; font-weight: 800; color: #ffd700;">${currencySymbol}${(minCost * conversionRate).toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('calc-sum').innerHTML = summaryHtml;
+            
+            // Result cards
+            let cardsHtml = '';
+            results.forEach(mode => {
+                const isBestCost = mode.totalCost === minCost;
+                const isBestTime = mode.days === minDays;
+                
+                cardsHtml += `
+                    <div style="background: ${mode.bgColor}; border: 2px solid ${mode.color}; border-radius: 16px; overflow: hidden; position: relative;">
+                        ${isBestCost ? '<div style="position: absolute; top: 0; right: 0; background: #27ae60; color: white; padding: 5px 15px; font-size: 11px; font-weight: 700; border-bottom-left-radius: 10px;">ƏN UCUZ</div>' : ''}
+                        ${isBestTime ? '<div style="position: absolute; top: 0; right: 0; background: #0066cc; color: white; padding: 5px 15px; font-size: 11px; font-weight: 700; border-bottom-left-radius: 10px;">ƏN SÜRƏTLİ</div>' : ''}
+                        <div style="padding: 20px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                                <div style="font-size: 36px;">${mode.icon}</div>
+                                <div>
+                                    <div style="font-size: 16px; font-weight: 700; color: ${mode.color};">${mode.name}</div>
+                                    <div style="font-size: 12px; color: #666;">${currencySymbol}${(mode.rate * conversionRate).toFixed(2)}/kq tarif</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: white; border-radius: 12px; margin-bottom: 15px;">
+                                <div style="font-size: 32px; font-weight: 800; color: ${mode.color};">${currencySymbol}${(mode.totalCost * conversionRate).toLocaleString()}</div>
+                                <div style="font-size: 13px; color: #666;">⏱️ ${mode.days} gün</div>
+                            </div>
+                            <div style="font-size: 11px; color: #555;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>Daşıma:</span><span>${currencySymbol}${Math.round(mode.freightCost * conversionRate).toLocaleString()}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>Yanacaq əlavəsi:</span><span>${currencySymbol}${Math.round(mode.fuelSurcharge * conversionRate).toLocaleString()}</span>
+                                </div>
+                                ${mode.securityCharge > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Təhlükəsizlik:</span><span>${currencySymbol}${Math.round(mode.securityCharge * conversionRate).toLocaleString()}</span></div>` : ''}
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>İdarəetmə:</span><span>${currencySymbol}${Math.round(mode.handlingCharge * conversionRate).toLocaleString()}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-top: 1px dashed #ccc; padding-top: 4px; margin-top: 4px; font-weight: 700;">
+                                    <span>CƏMİ:</span><span>${currencySymbol}${(mode.totalCost * conversionRate).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('calc-cards').innerHTML = cardsHtml;
+            
+            // Detailed comparison table
+            const tableHtml = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-table" style="margin-right: 10px;"></i>Ətraflı müqayisə cədvəli</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #003366, #0066cc); color: white;">
+                                    <th style="padding: 12px; text-align: left;">Parametr</th>
+                                    <th style="padding: 12px; text-align: center;">✈️ Hava</th>
+                                    <th style="padding: 12px; text-align: center;">🚢 Dəniz</th>
+                                    <th style="padding: 12px; text-align: center;">🚂 Dəmiryolu</th>
+                                    <th style="padding: 12px; text-align: center;">🚛 Avtomobil</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #f8f9fa;">
+                                    <td style="padding: 10px; font-weight: 600;">Məsafə</td>
+                                    <td style="padding: 10px; text-align: center;">${dist.toLocaleString()} km</td>
+                                    <td style="padding: 10px; text-align: center;">${dist.toLocaleString()} km</td>
+                                    <td style="padding: 10px; text-align: center;">${dist.toLocaleString()} km</td>
+                                    <td style="padding: 10px; text-align: center;">${dist.toLocaleString()} km</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; font-weight: 600;">Tarif ($/kq)</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${(results[0].rate * conversionRate).toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${(results[1].rate * conversionRate).toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${(results[2].rate * conversionRate).toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${(results[3].rate * conversionRate).toFixed(2)}</td>
+                                </tr>
+                                <tr style="background: #f8f9fa;">
+                                    <td style="padding: 10px; font-weight: 600;">Chargeable Weight</td>
+                                    <td style="padding: 10px; text-align: center; font-weight: 700;">${chargeableWeight.toFixed(1)} kq</td>
+                                    <td style="padding: 10px; text-align: center; font-weight: 700;">${chargeableWeight.toFixed(1)} kq</td>
+                                    <td style="padding: 10px; text-align: center; font-weight: 700;">${chargeableWeight.toFixed(1)} kq</td>
+                                    <td style="padding: 10px; text-align: center; font-weight: 700;">${chargeableWeight.toFixed(1)} kq</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; font-weight: 600;">Daşıma xərci</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[0].freightCost * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[1].freightCost * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[2].freightCost * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[3].freightCost * conversionRate).toLocaleString()}</td>
+                                </tr>
+                                <tr style="background: #f8f9fa;">
+                                    <td style="padding: 10px; font-weight: 600;">Yanacaq əlavəsi (15%)</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[0].fuelSurcharge * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[1].fuelSurcharge * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[2].fuelSurcharge * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round(results[3].fuelSurcharge * conversionRate).toLocaleString()}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; font-weight: 600;">Digər xərclər</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round((results[0].securityCharge + results[0].handlingCharge + results[0].customsCharge) * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round((results[1].securityCharge + results[1].handlingCharge + results[1].customsCharge) * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round((results[2].securityCharge + results[2].handlingCharge + results[2].customsCharge) * conversionRate).toLocaleString()}</td>
+                                    <td style="padding: 10px; text-align: center;">${currencySymbol}${Math.round((results[3].securityCharge + results[3].handlingCharge + results[3].customsCharge) * conversionRate).toLocaleString()}</td>
+                                </tr>
+                                <tr style="background: #e8f5e9; font-weight: 700; font-size: 14px;">
+                                    <td style="padding: 12px;">ÜMUMİ XƏRC</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[0].totalCost === minCost ? '#27ae60' : 'inherit'}; font-size: 16px;">$${results[0].totalCost.toLocaleString()}</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[1].totalCost === minCost ? '#27ae60' : 'inherit'}; font-size: 16px;">$${results[1].totalCost.toLocaleString()}</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[2].totalCost === minCost ? '#27ae60' : 'inherit'}; font-size: 16px;">$${results[2].totalCost.toLocaleString()}</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[3].totalCost === minCost ? '#27ae60' : 'inherit'}; font-size: 16px;">$${results[3].totalCost.toLocaleString()}</td>
+                                </tr>
+                                <tr style="background: #e3f2fd;">
+                                    <td style="padding: 12px; font-weight: 700;">Çatdırılma müddəti</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[0].days === minDays ? '#0066cc' : 'inherit'}; font-weight: 700;">${results[0].days} gün</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[1].days === minDays ? '#0066cc' : 'inherit'}; font-weight: 700;">${results[1].days} gün</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[2].days === minDays ? '#0066cc' : 'inherit'}; font-weight: 700;">${results[2].days} gün</td>
+                                    <td style="padding: 12px; text-align: center; color: ${results[3].days === minDays ? '#0066cc' : 'inherit'}; font-weight: 700;">${results[3].days} gün</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('calc-table').innerHTML = tableHtml;
+            
+            document.getElementById('calc-res').classList.add('active');
+            document.getElementById('calc-res').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // İlk yüklənmədə preview göstər
+        updateCalcPreview();
+    </script>
+</body>
+</html>
